@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   ArrowRight,
+  BookOpenText,
   Camera,
   Check,
   CheckCircle2,
@@ -40,6 +41,7 @@ import {
   type UploadQueueState
 } from "./capture";
 import { SettingsDrawer } from "./components/SettingsDrawer";
+import { TechnologyGuide } from "./components/TechnologyGuide";
 import type {
   AppConfig,
   DebugArtifact,
@@ -94,10 +96,12 @@ function formatBytes(bytes: number) {
 
 function TopBar({
   title,
-  onOpenSettings
+  onOpenSettings,
+  onOpenTechnology
 }: {
   title: string;
   onOpenSettings: () => void;
+  onOpenTechnology: () => void;
 }) {
   return (
     <header className="top-bar">
@@ -108,6 +112,14 @@ function TopBar({
         title="運営設定"
       >
         <Menu size={22} />
+      </button>
+      <button
+        className="icon-button technology-button"
+        onClick={onOpenTechnology}
+        aria-label="技術解説を開く"
+        title="技術解説"
+      >
+        <BookOpenText size={21} />
       </button>
       <div className="mini-brand">
         <span className="mini-brand-mark">
@@ -1543,6 +1555,7 @@ export default function App() {
   const [capture, setCapture] = useState<DemoMediaCapture | null>(null);
   const [queueState, setQueueState] = useState<UploadQueueState>(idleQueueState);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [technologyOpen, setTechnologyOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [fatalError, setFatalError] = useState<string | null>(null);
@@ -1843,7 +1856,17 @@ export default function App() {
           <span>LOCAL AI PIPELINE / DEVELOPMENT BUILD</span>
         </div>
       )}
-      <TopBar title={title} onOpenSettings={() => setSettingsOpen(true)} />
+      <TopBar
+        title={title}
+        onOpenSettings={() => {
+          setTechnologyOpen(false);
+          setSettingsOpen(true);
+        }}
+        onOpenTechnology={() => {
+          setSettingsOpen(false);
+          setTechnologyOpen(true);
+        }}
+      />
       {page}
       {settings && options && (
         <SettingsDrawer
@@ -1897,6 +1920,10 @@ export default function App() {
           }
         />
       )}
+      <TechnologyGuide
+        open={technologyOpen}
+        onClose={() => setTechnologyOpen(false)}
+      />
       {session &&
         ["device_check", "conversation"].includes(session.state) &&
         queueState.state === "blocked" && (

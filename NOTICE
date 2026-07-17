@@ -11,6 +11,10 @@ and non-commercial demonstration. Commercial use requires a separate written
 license from Fish Audio. See the upstream LICENSE distributed with the pinned
 Fish Speech source and model weights for the complete terms.
 
+OpenAI gpt-oss-20b, OpenAI Harmony, and vLLM are used under Apache-2.0.
+Use of the model must also comply with the OpenAI gpt-oss usage policy. The
+model reasoning channel is internal and is not displayed to demo visitors.
+
 FLUX.2 Klein 4B, EchoMimicV3, and their applicable code and model materials are
 used under their recorded Apache-2.0 licenses. See config/model-catalog.yaml for
 pinned revisions and official source locations.

@@ -1,0 +1,609 @@
+.technology-button {
+  position: absolute;
+  top: 82px;
+  left: 28px;
+  color: var(--blue);
+  box-shadow: 0 10px 26px rgba(23, 33, 58, 0.1);
+}
+
+.technology-guide {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  visibility: hidden;
+  grid-template-rows: 76px minmax(0, 1fr);
+  background: var(--canvas);
+  opacity: 0;
+  transform: translateX(-100%);
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease,
+    visibility 300ms ease;
+}
+
+.technology-guide.is-open {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.technology-guide-header {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  min-width: 0;
+  padding: 0 34px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.technology-guide-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 12px;
+}
+
+.technology-guide-brand > span {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  border-radius: 7px;
+  background: var(--blue);
+  place-items: center;
+}
+
+.technology-guide-lab {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.technology-guide-header .icon-button {
+  justify-self: end;
+}
+
+.technology-guide-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.technology-guide-inner {
+  width: min(1160px, calc(100% - 64px));
+  margin: 0 auto;
+}
+
+.technology-guide-hero {
+  padding: 78px 0 64px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.technology-guide-hero h2 {
+  max-width: 1080px;
+  margin: 15px 0 24px;
+  font-size: 64px;
+  line-height: 1.14;
+}
+
+.technology-mobile-line {
+  display: inline;
+}
+
+.technology-guide-hero > .technology-guide-inner > p {
+  max-width: 800px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.9;
+}
+
+.modality-strip {
+  display: grid;
+  margin-top: 56px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.modality-item {
+  display: flex;
+  min-width: 0;
+  min-height: 106px;
+  padding: 22px 24px;
+  align-items: center;
+  gap: 14px;
+  border-right: 1px solid var(--line);
+}
+
+.modality-item:last-child {
+  border-right: 0;
+}
+
+.modality-icon {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border-radius: 7px;
+  place-items: center;
+}
+
+.modality-item > span:last-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.modality-item strong {
+  font-size: 17px;
+}
+
+.modality-item small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.modality-sound .modality-icon {
+  color: #087c82;
+  background: #dff8f7;
+}
+
+.modality-text .modality-icon {
+  color: var(--blue-dark);
+  background: #e5edff;
+}
+
+.modality-image .modality-icon {
+  color: #785d00;
+  background: #fff3bd;
+}
+
+.modality-video .modality-icon {
+  color: #a83732;
+  background: #ffe5e1;
+}
+
+.technology-explainer {
+  padding: 86px 0;
+  background: #f1f5ff;
+}
+
+.explainer-layout {
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(0, 0.86fr) minmax(500px, 1.14fr);
+  gap: 70px;
+}
+
+.explainer-copy h3,
+.pipeline-heading h3,
+.technology-local h3 {
+  margin: 12px 0 20px;
+  font-size: 34px;
+  line-height: 1.35;
+}
+
+.explainer-copy p,
+.pipeline-heading p,
+.technology-local p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.multimodal-definition {
+  display: grid;
+  margin-top: 24px;
+  padding: 18px 0;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 16px;
+  border-top: 1px solid #bcc9e5;
+  border-bottom: 1px solid #bcc9e5;
+}
+
+.multimodal-definition strong {
+  color: var(--blue-dark);
+  font-size: 12px;
+}
+
+.multimodal-definition span {
+  color: #46536e;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.multimodal-diagram {
+  display: grid;
+  min-height: 300px;
+  align-items: center;
+  grid-template-columns: minmax(130px, 1fr) auto minmax(150px, 1fr) auto minmax(150px, 1fr);
+  gap: 14px;
+}
+
+.multimodal-diagram > svg {
+  color: #8c97ad;
+}
+
+.diagram-inputs {
+  display: grid;
+  gap: 9px;
+}
+
+.diagram-inputs span,
+.diagram-core,
+.diagram-output {
+  display: flex;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.diagram-inputs span {
+  min-height: 52px;
+  padding: 0 14px;
+  align-items: center;
+  gap: 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.diagram-sound {
+  color: #087c82;
+}
+
+.diagram-text {
+  color: var(--blue-dark);
+}
+
+.diagram-image {
+  color: #785d00;
+}
+
+.diagram-core,
+.diagram-output {
+  min-height: 170px;
+  padding: 22px 16px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 7px;
+  text-align: center;
+}
+
+.diagram-core {
+  color: var(--violet);
+  border-color: #c9bfeb;
+}
+
+.diagram-output {
+  color: #13714c;
+  border-color: #a9d9c3;
+}
+
+.diagram-core strong,
+.diagram-output strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.diagram-core small,
+.diagram-output small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.technology-pipeline {
+  padding: 90px 0 94px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
+.pipeline-heading {
+  display: grid;
+  margin-bottom: 46px;
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.65fr);
+  gap: 60px;
+}
+
+.pipeline-heading h3 {
+  margin-bottom: 0;
+}
+
+.pipeline-heading p {
+  margin: 0 0 5px;
+}
+
+.technology-pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.pipeline-stage {
+  min-width: 0;
+  min-height: 286px;
+  padding: 25px 26px 23px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-top: 5px solid var(--stage-color);
+  background: #fff;
+}
+
+.pipeline-stage > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--stage-color);
+}
+
+.pipeline-stage > header span {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.multimodal-stage-label {
+  margin-left: auto;
+  padding: 4px 7px;
+  color: var(--stage-color);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: 8px;
+  line-height: 1;
+}
+
+.pipeline-stage:nth-child(6) {
+  background: #f1fbf6;
+}
+
+.pipeline-stage:nth-child(6) h4::after {
+  display: block;
+  margin-top: 7px;
+  color: #17845a;
+  content: "TEXT + AUDIO + IMAGE -> VIDEO";
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.pipeline-stage h4 {
+  margin: 28px 0 12px;
+  font-size: 20px;
+}
+
+.pipeline-stage > p {
+  min-height: 68px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.pipeline-io {
+  display: flex;
+  margin-top: 22px;
+  padding-top: 15px;
+  align-items: center;
+  gap: 9px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pipeline-io strong {
+  color: var(--stage-color);
+}
+
+.stage-cyan {
+  --stage-color: #168e92;
+}
+
+.stage-blue {
+  --stage-color: var(--blue);
+}
+
+.stage-violet {
+  --stage-color: var(--violet);
+}
+
+.stage-yellow {
+  --stage-color: #a67a00;
+}
+
+.stage-coral {
+  --stage-color: #db5147;
+}
+
+.stage-green {
+  --stage-color: #17845a;
+}
+
+.technology-local {
+  padding: 72px 0;
+  color: #fff;
+  background: #20293c;
+}
+
+.local-layout {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 76px minmax(0, 760px);
+  gap: 28px;
+}
+
+.local-icon {
+  display: inline-grid;
+  width: 70px;
+  height: 70px;
+  color: #8ee3c1;
+  border: 1px solid #4b5c70;
+  border-radius: 7px;
+  background: #28354a;
+  place-items: center;
+}
+
+.technology-local .eyebrow {
+  color: #8ee3c1;
+}
+
+.technology-local h3 {
+  color: #fff;
+}
+
+.technology-local p {
+  margin-bottom: 0;
+  color: #c5cede;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .technology-guide {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .explainer-layout {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .multimodal-diagram {
+    min-height: 250px;
+  }
+
+  .technology-pipeline-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .technology-button {
+    left: 16px;
+  }
+
+  .technology-guide {
+    grid-template-rows: 66px minmax(0, 1fr);
+  }
+
+  .technology-guide-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 0 16px;
+  }
+
+  .technology-guide-brand strong {
+    font-size: 10px;
+  }
+
+  .technology-guide-lab {
+    display: none;
+  }
+
+  .technology-guide-inner {
+    width: min(100% - 32px, 1160px);
+  }
+
+  .technology-guide-hero {
+    padding: 56px 0 44px;
+  }
+
+  .technology-guide-hero h2 {
+    font-size: 38px;
+  }
+
+  .technology-mobile-line {
+    display: block;
+  }
+
+  .technology-guide-hero > .technology-guide-inner > p {
+    font-size: 14px;
+  }
+
+  .modality-strip {
+    margin-top: 38px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .modality-item {
+    min-height: 92px;
+    padding: 16px 12px;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .modality-item:nth-child(2) {
+    border-right: 0;
+  }
+
+  .modality-item:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .modality-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .technology-explainer,
+  .technology-pipeline {
+    padding: 62px 0;
+  }
+
+  .explainer-copy h3,
+  .pipeline-heading h3,
+  .technology-local h3 {
+    font-size: 27px;
+  }
+
+  .multimodal-definition {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .multimodal-diagram {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .multimodal-diagram > svg {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+
+  .diagram-core,
+  .diagram-output {
+    min-height: 130px;
+  }
+
+  .pipeline-heading {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .technology-pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pipeline-stage {
+    min-height: 0;
+  }
+
+  .pipeline-stage > p {
+    min-height: 0;
+  }
+
+  .technology-local {
+    padding: 54px 0;
+  }
+
+  .local-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

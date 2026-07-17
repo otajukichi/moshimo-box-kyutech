@@ -33,6 +33,8 @@ fi
 APP_ENV_DIR="${ENV_ROOT}/app"
 APP_PYTHON="${APP_ENV_DIR}/bin/python"
 APP_NPM="${APP_ENV_DIR}/bin/npm"
+GPT_OSS_ENV_DIR="${ENV_ROOT}/gpt-oss"
+GPT_OSS_PYTHON="${GPT_OSS_ENV_DIR}/bin/python"
 
 if [[ -z "${CONDA_BIN:-}" ]]; then
   CONDA_BIN="$(command -v conda 2>/dev/null || true)"

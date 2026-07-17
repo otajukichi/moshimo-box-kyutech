@@ -1,0 +1,4 @@
+# A100 SM80 MXFP4 runtime for openai/gpt-oss-20b.
+vllm==0.10.2
+openai-harmony==0.0.8
+transformers==4.56.1

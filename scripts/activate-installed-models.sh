@@ -9,7 +9,15 @@ FLUX_PYTHON="${ENV_ROOT}/flux2-klein/bin/python"
 MUSETALK_PYTHON="${ENV_ROOT}/musetalk/bin/python"
 VIDEO_PYTHON="${ENV_ROOT}/echomimic-v3/bin/python"
 
-"${APP_PYTHON}" - "${ROOT_DIR}" "${MODEL_ROOT}"   "${APP_PYTHON}" "${GEN_PYTHON}" "${FLUX_PYTHON}"   "${MUSETALK_PYTHON}" "${VIDEO_PYTHON}" <<'PYACTIVATE'
+"${APP_PYTHON}" - \
+  "${ROOT_DIR}" \
+  "${MODEL_ROOT}" \
+  "${APP_PYTHON}" \
+  "${GEN_PYTHON}" \
+  "${FLUX_PYTHON}" \
+  "${MUSETALK_PYTHON}" \
+  "${VIDEO_PYTHON}" \
+  "${GPT_OSS_PYTHON}" <<'PYACTIVATE'
 from __future__ import annotations
 
 from datetime import date
@@ -28,6 +36,7 @@ generation_python = Path(sys.argv[4])
 flux_python = Path(sys.argv[5])
 musetalk_python = Path(sys.argv[6])
 video_python = Path(sys.argv[7])
+gpt_oss_python = Path(sys.argv[8])
 
 
 def paths_exist(*paths: Path) -> bool:
@@ -59,6 +68,7 @@ def import_ready(python: Path, statement: str, *, cwd: Path = root) -> bool:
 asr_dir = model_root / "asr" / "kotoba-whisper-v2.0-faster"
 qwen4_dir = model_root / "llm" / "qwen3-4b-instruct-2507"
 qwen_vl_dir = model_root / "llm" / "qwen3-vl-8b-instruct"
+gpt_oss_dir = model_root / "llm" / "gpt-oss-20b"
 fish_dir = model_root / "tts" / "fish-s2-pro"
 flux4_dir = model_root / "image" / "flux2-klein-4b"
 flux9_dir = model_root / "image" / "flux2-klein-9b"
@@ -95,6 +105,18 @@ availability = {
         and import_ready(
             app_python,
             "from transformers import AutoProcessor, Qwen3VLForConditionalGeneration",
+        )
+    ),
+    "gpt-oss-20b-mxfp4-vllm": (
+        paths_exist(
+            gpt_oss_dir / "config.json",
+            gpt_oss_dir / "model.safetensors.index.json",
+            gpt_oss_dir / "tokenizer.json",
+        )
+        and len(list(gpt_oss_dir.glob("model-*.safetensors"))) == 3
+        and import_ready(
+            gpt_oss_python,
+            "from vllm import LLM; from openai_harmony import load_harmony_encoding",
         )
     ),
     "fish-s2-pro-bf16": (
@@ -175,7 +197,7 @@ for profile_name in ("fast", "balanced", "quality"):
     if availability["kotoba-whisper-v2-faster-fp16"]:
         selected["streaming_asr_worker"] = "kotoba-whisper-v2-faster-fp16"
 
-    interview_model = (
+    default_interview_model = (
         "qwen3-4b-instruct-2507-bf16"
         if availability["qwen3-4b-instruct-2507-bf16"]
         else (
@@ -183,6 +205,12 @@ for profile_name in ("fast", "balanced", "quality"):
             if availability["qwen3-vl-8b-instruct-bf16"]
             else "foundation-stub"
         )
+    )
+    interview_model = (
+        "gpt-oss-20b-mxfp4-vllm"
+        if profile_name == "quality"
+        and availability["gpt-oss-20b-mxfp4-vllm"]
+        else default_interview_model
     )
     selected["interview_llm_worker"] = interview_model
 
@@ -192,6 +220,20 @@ for profile_name in ("fast", "balanced", "quality"):
             "flux2-klein-4b-bf16"
             if availability["flux2-klein-4b-bf16"]
             else "foundation-stub"
+        )
+    elif (
+        profile_name == "quality"
+        and availability["gpt-oss-20b-mxfp4-vllm"]
+    ):
+        design_model = "gpt-oss-20b-mxfp4-vllm"
+        image_model = (
+            "flux2-klein-9b-bf16"
+            if availability["flux2-klein-9b-bf16"]
+            else (
+                "flux2-klein-4b-bf16"
+                if availability["flux2-klein-4b-bf16"]
+                else "foundation-stub"
+            )
         )
     else:
         design_model = (

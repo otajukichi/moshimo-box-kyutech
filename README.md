@@ -4,7 +4,7 @@
 未来の本人によるメッセージ動画を生成し、推論・入力データ・中間生成物を
 研究室内JupyterHubで完結させます。
 
-ターン単位の日本語ASR、インタビューLLM、台本設計VLM、本人声TTS、未来画像生成、
+ターン単位の日本語ASR、インタビューLLM、台本設計LLM/VLM、本人声TTS、未来画像生成、
 音声駆動動画生成を、交換可能な独立ワーカーとして接続しています。
 
 ## 別アカウントでの初回セットアップ
@@ -49,7 +49,8 @@ cd moshimo-box-kyutech
 | `core` | ASRとインタビューLLMのみ |
 | `fast` | `core`、Fish TTS、FLUX 4B、MuseTalk |
 | `balanced` | `fast`、Qwen3-VL 8B、FLUX 9B。通常デモ向け |
-| `full` | `balanced`、EchoMimicV3。全候補を利用可能にする |
+| `gpt-oss` | GPT-OSS 20B専用環境と重みだけを追加 |
+| `full` | `balanced`、EchoMimicV3、GPT-OSS 20B。全候補を利用可能にする |
 
 詳しい引き継ぎ手順は
 [研究室メンバー向けセットアップ](docs/lab-member-setup.md)を参照してください。
@@ -86,6 +87,7 @@ Conda環境を`<workspace>/env/moshimo-box-kyutech`へ作ります。
   flux2-klein/
   musetalk/
   echomimic-v3/
+  gpt-oss/
 ~~~
 
 別の場所を使う場合は、すべてのスクリプトで共通の環境変数を指定できます。

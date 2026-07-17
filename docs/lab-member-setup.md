@@ -41,7 +41,14 @@ cd moshimo-box-kyutech
 ./scripts/doctor.sh
 ~~~
 
-EchoMimicV3も選択肢へ加える場合だけ、後から次を実行します。
+GPT-OSS 20Bをインタビュー・計画LLMの選択肢へ加える場合は、次を実行します。
+
+~~~bash
+./scripts/install-models.sh gpt-oss
+./scripts/doctor.sh
+~~~
+
+EchoMimicV3とGPT-OSSを含む全候補をまとめて導入する場合は、次を実行します。
 
 ~~~bash
 ./scripts/install-models.sh full
@@ -81,6 +88,8 @@ git pull
 
 ~~~bash
 ./scripts/install-models.sh balanced
+# GPT-OSSを利用している場合
+./scripts/install-models.sh gpt-oss
 ~~~
 
 `bootstrap.sh`を再実行してもConda環境は削除・再作成されません。

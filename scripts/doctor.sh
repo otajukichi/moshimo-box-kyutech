@@ -74,6 +74,25 @@ else
   fail "npm is missing from the app environment"
 fi
 
+GPT_OSS_MODEL_DIR="${MODEL_ROOT}/llm/gpt-oss-20b"
+if [[ -d "${GPT_OSS_MODEL_DIR}" ]]; then
+  if [[ -x "${GPT_OSS_PYTHON}" ]]; then
+    if version_line="$("${GPT_OSS_PYTHON}" -c 'import openai_harmony, vllm; print(f"vLLM {vllm.__version__} / Harmony available")' 2>/dev/null)"; then
+      ok "GPT-OSS runtime: ${version_line}"
+    else
+      fail "GPT-OSS runtime imports failed; rerun ./scripts/install-models.sh gpt-oss"
+    fi
+  else
+    fail "GPT-OSS environment is missing: ${GPT_OSS_PYTHON}"
+  fi
+  shard_count="$(find "${GPT_OSS_MODEL_DIR}" -maxdepth 1 -type f -name 'model-*.safetensors' | wc -l)"
+  if [[ -f "${GPT_OSS_MODEL_DIR}/config.json"     && -f "${GPT_OSS_MODEL_DIR}/model.safetensors.index.json"     && -f "${GPT_OSS_MODEL_DIR}/tokenizer.json"     && "${shard_count}" -eq 3 ]]; then
+    ok "GPT-OSS 20B checkpoint is complete"
+  else
+    fail "GPT-OSS 20B checkpoint is incomplete; rerun ./scripts/install-models.sh gpt-oss"
+  fi
+fi
+
 if [[ -f "${ROOT_DIR}/frontend/dist/index.html" ]]; then
   ok "frontend build exists"
 else

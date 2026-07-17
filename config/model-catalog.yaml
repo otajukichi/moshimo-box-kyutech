@@ -246,6 +246,75 @@ models:
       restrictions:
         - "Visual observations must not infer sensitive personal attributes"
 
+  - id: "gpt-oss-20b-mxfp4-vllm"
+    label: "GPT-OSS 20B (MXFP4 / vLLM)"
+    description: "A100の40GB MIG向けにvLLMでMXFP4実行する、テキスト専用の高品質インタビュー・映像設計モデルです。"
+    roles:
+      - "interview_llm_worker"
+      - "script_design_llm_worker"
+      - "script_safety_review_worker"
+    backend: "vllm"
+    model_id: "openai/gpt-oss-20b"
+    revision: "6cee5e81ee83917806bbde320786a8fb61efebee"
+    dtype: "bfloat16"
+    quantization: "mxfp4"
+    device: "cuda:0"
+    environment: "gpt-oss"
+    python_bin: "gpt-oss/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.gpt_oss_vllm:create_worker"
+    model_path: "llm/gpt-oss-20b"
+    parameters:
+      multimodal: false
+      gpu_memory_utilization: 0.78
+      max_model_len: 8192
+      max_num_seqs: 1
+      max_num_batched_tokens: 8192
+      enforce_eager: true
+      enable_prefix_caching: true
+      swap_space_gib: 0
+      cpu_offload_gib: 0
+      seed: 42
+      top_p: 1.0
+      interview_reasoning_effort: "low"
+      interview_temperature: 0.7
+      interview_min_new_tokens: 256
+      planning_reasoning_effort: "low"
+      planning_temperature: 0.7
+      planning_min_new_tokens: 512
+      safety_reasoning_effort: "low"
+      safety_temperature: 0.0
+      safety_min_new_tokens: 256
+      stage_max_new_tokens: 512
+      narration_max_new_tokens: 384
+      text_revision_retry_count: 1
+      safety_verdict_max_new_tokens: 128
+      safety_rewrite_max_new_tokens: 384
+    timeout_seconds: 1200
+    fallback_model_id: "qwen3-4b-instruct-2507-bf16"
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://openai.com/index/introducing-gpt-oss/"
+      - "https://openai.com/index/gpt-oss-model-card/"
+      - "https://huggingface.co/openai/gpt-oss-20b"
+      - "https://docs.vllm.ai/en/latest/api/vllm/model_executor/layers/quantization/mxfp4/"
+    checked_at: "2026-07-17"
+    license:
+      code_license: "Apache-2.0 (OpenAI Harmony and vLLM)"
+      weight_license: "Apache-2.0, subject to the OpenAI gpt-oss usage policy"
+      research_use: "Permitted"
+      noncommercial_demo: "Permitted"
+      redistribution: "Retain the Apache-2.0 license and applicable notices"
+      output_terms: "No model-specific ownership condition is stated in the model card"
+      attribution: "Retain applicable notices when redistributing code or weights"
+      restrictions:
+        - "Use must comply with the OpenAI gpt-oss usage policy"
+        - "Reasoning-channel content must never be shown to visitors"
+        - "This model is text-only; reference images are intentionally not passed to it"
+
 
   - id: "fish-s2-pro-bf16"
     label: "Fish Audio S2 Pro (BF16)"

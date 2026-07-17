@@ -98,6 +98,35 @@ test("title and staff settings stay within the desktop viewport", async ({
   await page.screenshot({ path: testInfo.outputPath("settings-desktop.png") });
 });
 
+test("technology guide fills the viewport and explains a multimodal model", async ({
+  page
+}, testInfo) => {
+  await page.goto("./");
+  await expect(page.getByRole("button", { name: "技術解説を開く" })).toBeVisible();
+  await page.getByRole("button", { name: "技術解説を開く" }).click();
+
+  const guide = page.getByRole("dialog", {
+    name: /AIは、ことばだけを.*見ているわけでは.*ありません/
+  });
+  await expect(guide).toBeVisible();
+  await expect.poll(async () => Math.round((await guide.boundingBox())?.x ?? -999)).toBe(0);
+  await expect(
+    page.getByText("一つのAIモデルが複数のモダリティを入出力として扱う技術")
+  ).toBeVisible();
+  await expect(page.getByText("画像 + 音声 + 文字")).toBeVisible();
+
+  const bounds = await guide.boundingBox();
+  expect(bounds?.x).toBe(0);
+  expect(bounds?.y).toBe(0);
+  expect(bounds?.width).toBe(page.viewportSize()?.width);
+  expect(bounds?.height).toBe(page.viewportSize()?.height);
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({ path: testInfo.outputPath("technology-guide.png") });
+
+  await page.getByRole("button", { name: "技術解説を閉じる" }).click();
+  await expect(guide).toBeHidden();
+});
+
 test("mobile title and consent remain readable", async ({ page }, testInfo) => {
   await waitForTitle(page);
   await expectNoHorizontalOverflow(page);

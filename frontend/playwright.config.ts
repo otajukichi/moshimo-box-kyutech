@@ -21,7 +21,7 @@ export default defineConfig({
           "../start-app.sh 8790",
         url: "http://127.0.0.1:8790/api/health",
         reuseExistingServer: true,
-        timeout: 30_000
+        timeout: 90_000
       },
   use: {
     baseURL,
