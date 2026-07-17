@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "orbit-athlete"
+name: "軌道都市のトップアスリート"
+content: "低重力競技の選手として活躍し、未来のスポーツを切り開いている。"
+base_rarity: "SR"
+weight: 10
+enabled: true
+formal_mode_allowed: true
+public_demo_allowed: true
+limited_only: false
+min_age: null
+max_age: null
+generation_instruction: "本人の好きなことや努力の仕方を競技と自然に結び付け、爽快な活躍場面を入れる。"
+tags: ["sports", "success", "public"]

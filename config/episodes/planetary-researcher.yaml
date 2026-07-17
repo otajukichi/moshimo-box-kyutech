@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "planetary-prize-researcher"
+name: "惑星級の発見をした研究者"
+content: "暮らしを変える発見で世界的な科学賞を受け、未来の研究室から報告している。"
+base_rarity: "SR"
+weight: 9
+enabled: true
+formal_mode_allowed: true
+public_demo_allowed: true
+limited_only: false
+min_age: null
+max_age: null
+generation_instruction: "受賞名や実在人物を出さず、本人の興味と仲間との研究過程を中心にする。"
+tags: ["science", "research", "public"]

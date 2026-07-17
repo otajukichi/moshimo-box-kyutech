@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "future-cucumber-farmer"
+name: "宇宙きゅうり農園の経営者"
+content: "気候制御型の農園で、地球と宇宙へ驚くほどおいしいきゅうりを届けている。"
+base_rarity: "SR"
+weight: 10
+enabled: true
+formal_mode_allowed: true
+public_demo_allowed: true
+limited_only: false
+min_age: null
+max_age: null
+generation_instruction: "意外性を大切にしつつ、農業と技術の組み合わせを前向きに描く。"
+tags: ["agriculture", "technology", "public"]

@@ -1,0 +1,46 @@
+schema_version: "1.0"
+effects:
+  - id: "straight-message"
+    name: "順当に進んだ未来"
+    content: "未来の本人が、これまでの歩みと今の暮らしを穏やかに伝える。"
+    rarity_upgrade_steps: 0
+    weight: 42
+    enabled: true
+    formal_mode_allowed: true
+    generation_instruction: "本人情報を丁寧に拾い、意外性より納得感を優先する。"
+
+  - id: "future-sos"
+    name: "未来からのSOS"
+    content: "通信の途中で未来側の異変が判明し、過去の自分へ助けを求める。"
+    rarity_upgrade_steps: 1
+    weight: 18
+    enabled: true
+    formal_mode_allowed: true
+    generation_instruction: "短い緊急演出を入れつつ、最後は希望が残る構成にする。"
+
+  - id: "spectacular-success"
+    name: "世界級の大成功"
+    content: "想像を超える規模で活躍した未来の本人が、その転機を伝える。"
+    rarity_upgrade_steps: 1
+    weight: 16
+    enabled: true
+    formal_mode_allowed: true
+    generation_instruction: "実在人物名を使わず、本人の価値観を成功の形へ反映する。"
+
+  - id: "plea-to-the-past"
+    name: "過去の自分への訴え"
+    content: "未来の本人が、今の自分にどうしても伝えたい一つの行動を訴える。"
+    rarity_upgrade_steps: 1
+    weight: 14
+    enabled: true
+    formal_mode_allowed: true
+    generation_instruction: "命令や否定ではなく、未来の本人からの切実で前向きな願いにする。"
+
+  - id: "action-highlight"
+    name: "活躍シーン中継"
+    content: "メッセージの途中に、未来で本人が活躍する短い中継映像が差し込まれる。"
+    rarity_upgrade_steps: 0
+    weight: 10
+    enabled: true
+    formal_mode_allowed: true
+    generation_instruction: "20秒動画でも理解できる、視覚的に明快な見せ場を一つ作る。"

@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "alien-contact"
+name: "宇宙からの来訪者"
+content: "地球へ来た未知の知性と最初に向き合い、思いがけない方法で未来を救う。"
+base_rarity: "R"
+weight: 13
+enabled: true
+formal_mode_allowed: true
+public_demo_allowed: true
+limited_only: false
+min_age: null
+max_age: null
+generation_instruction: "恐怖より驚きとユーモアを優先し、本人が活躍する場面を明確に入れる。"
+tags: ["aliens", "adventure", "public"]

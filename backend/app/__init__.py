@@ -1,0 +1,1 @@
+"""Moshimo Box Kyutech backend."""

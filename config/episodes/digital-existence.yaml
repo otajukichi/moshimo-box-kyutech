@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "digital-existence"
+name: "電子世界で生きる未来"
+content: "肉体の境界を越え、電子化された都市を自由に旅する存在になっている。"
+base_rarity: "SSR"
+weight: 6
+enabled: true
+formal_mode_allowed: true
+public_demo_allowed: true
+limited_only: false
+min_age: null
+max_age: null
+generation_instruction: "喪失や死として扱わず、強いSF感のある新しい生き方として明るく描く。"
+tags: ["digital", "transhuman", "public"]

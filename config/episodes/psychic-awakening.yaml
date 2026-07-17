@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "psychic-awakening"
+name: "超能力に目覚めた日"
+content: "ある日突然、不思議な力に目覚め、その力を未来の街で役立てている。"
+base_rarity: "SSR"
+weight: 6
+enabled: true
+formal_mode_allowed: true
+public_demo_allowed: true
+limited_only: false
+min_age: null
+max_age: null
+generation_instruction: "既存作品の固有名詞を使わず、本人らしい使い方と視覚的な見せ場を作る。"
+tags: ["psychic", "heroic", "public"]

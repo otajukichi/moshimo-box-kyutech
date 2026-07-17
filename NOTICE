@@ -1,0 +1,16 @@
+Third-Party Model Notice
+
+Fish Audio S2 Pro and the Fish Speech software are licensed under the Fish
+Audio Research License. This model is licensed under the Fish Audio Research
+License, Copyright © 39 AI, INC. All Rights Reserved.
+
+Built with Fish Audio
+
+The current project configuration uses Fish Audio materials only for research
+and non-commercial demonstration. Commercial use requires a separate written
+license from Fish Audio. See the upstream LICENSE distributed with the pinned
+Fish Speech source and model weights for the complete terms.
+
+FLUX.2 Klein 4B, EchoMimicV3, and their applicable code and model materials are
+used under their recorded Apache-2.0 licenses. See config/model-catalog.yaml for
+pinned revisions and official source locations.

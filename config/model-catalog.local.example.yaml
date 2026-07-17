@@ -1,0 +1,16 @@
+# Copy to config/model-catalog.local.yaml. This file is ignored by Git.
+# The empty file is valid. Add only machine-specific overrides after installing
+# and testing a model.
+
+schema_version: "1.0"
+models: []
+
+# Example override for a model already defined in model-catalog.yaml:
+# models:
+#   - id: "shared-catalog-id"
+#     python_bin: "model-env/bin/python"
+#     model_path: "model-family/model-directory"
+#     installed: true
+#     validated: true
+#     last_healthcheck: "passed"
+#     checked_at: "YYYY-MM-DD"

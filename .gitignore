@@ -1,0 +1,44 @@
+# Local configuration and secrets
+.env
+config/local.yaml
+config/model-catalog.local.yaml
+
+# Runtime data containing visitor or generated information
+data/runtime/*
+!data/runtime/.gitkeep
+data/sessions/*
+!data/sessions/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# Anonymous local performance metrics and benchmark artifacts
+data/metrics/*
+!data/metrics/.gitkeep
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+benchmarks/private-inputs/*
+
+# Local model weights, caches, and downloaded repositories
+models/*
+!models/README.md
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/test-results/
+frontend/playwright-report/
+
+# Editors and notebooks
+.DS_Store
+.idea/
+.vscode/
+.ipynb_checkpoints/

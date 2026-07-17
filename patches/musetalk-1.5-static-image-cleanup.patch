@@ -1,0 +1,13 @@
+diff --git a/scripts/inference.py b/scripts/inference.py
+index 2e2c293..0e0d4ae 100644
+--- a/scripts/inference.py
++++ b/scripts/inference.py
+@@ -240,6 +240,7 @@ def main(args):
+             shutil.rmtree(result_img_save_path)
+             os.remove(temp_vid_path)
+
+-            shutil.rmtree(save_dir_full)
++            if get_file_type(video_path) == "video":
++                shutil.rmtree(save_dir_full)
+             if not args.saved_coord:
+                 os.remove(crop_coord_save_path)

@@ -1,0 +1,33 @@
+# Copy to config/local.yaml. This file is ignored by Git.
+
+app:
+  # Set to false for the public demo. Restart the app after changing it.
+  debug_mode: false
+  public_base_url: "https://your-jupyterhub.example.jp"
+
+server:
+  default_port: 8789
+
+  # Usually derived automatically. Set only for a different Conda location.
+  # environment_root: "/path/to/env/moshimo-box-kyutech"
+storage:
+  model_root: "models"
+  session_root: "data/sessions"
+
+capture:
+  silence_seconds: 1.8
+  response_max_seconds: 30
+  finalize_timeout_seconds: 15
+  camera_stable_seconds: 1.5
+  brightness_min: 45
+  brightness_max: 220
+
+pipeline:
+  worker_restart_count: 1
+  gpu_release_wait_seconds: 1.0
+
+worker_runtime:
+  process_isolation_enabled: true
+  startup_timeout_seconds: 20
+  request_timeout_seconds: 120
+  shutdown_timeout_seconds: 8

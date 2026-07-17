@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "biohazard-survivor"
+name: "封鎖都市のサバイバー"
+content: "未知の感染災害で封鎖された都市を生き抜き、過去の自分へ緊急通信を送る。"
+base_rarity: "R"
+weight: 10
+enabled: true
+formal_mode_allowed: false
+public_demo_allowed: false
+limited_only: true
+min_age: 15
+max_age: null
+generation_instruction: "非公開用途向け。露骨な流血表現より、緊迫したサバイバルと通信演出を中心にする。"
+tags: ["survival", "biohazard", "underground"]

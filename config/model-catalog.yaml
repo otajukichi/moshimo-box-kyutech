@@ -1,0 +1,505 @@
+schema_version: "1.0"
+
+profiles:
+  fast: &stub_profile
+    audio_preprocess_worker: "foundation-stub"
+    streaming_asr_worker: "foundation-stub"
+    final_asr_worker: "foundation-stub"
+    interview_llm_worker: "foundation-stub"
+    interview_tts_worker: "foundation-stub"
+    interview_summary_worker: "foundation-stub"
+    episode_selector: "foundation-stub"
+    script_design_llm_worker: "foundation-stub"
+    script_safety_review_worker: "foundation-stub"
+    reference_frame_selector: "foundation-stub"
+    voice_reference_selector: "foundation-stub"
+    image_generation_worker: "foundation-stub"
+    voice_clone_tts_worker: "foundation-stub"
+    video_generation_worker: "foundation-stub"
+    lip_sync_worker: "foundation-stub"
+    video_postprocess_worker: "foundation-stub"
+  balanced: *stub_profile
+  quality: *stub_profile
+
+models:
+  - id: "foundation-stub"
+    label: "未接続スタブ"
+    description: "画面とワーカー境界の確認用です。実際のAIモデルは起動しません。"
+    roles:
+      - "audio_preprocess_worker"
+      - "streaming_asr_worker"
+      - "final_asr_worker"
+      - "interview_llm_worker"
+      - "interview_tts_worker"
+      - "interview_summary_worker"
+      - "episode_selector"
+      - "script_design_llm_worker"
+      - "script_safety_review_worker"
+      - "reference_frame_selector"
+      - "voice_reference_selector"
+      - "image_generation_worker"
+      - "voice_clone_tts_worker"
+      - "video_generation_worker"
+      - "lip_sync_worker"
+      - "video_postprocess_worker"
+    backend: "stub"
+    model_id: "foundation/unimplemented"
+    revision: "foundation-v1"
+    dtype: "none"
+    quantization: "none"
+    device: "cpu"
+    environment: "app"
+    python_bin: "app/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.base:create_stub_worker"
+    model_path: null
+    timeout_seconds: 30
+    fallback_model_id: null
+    installed: true
+    validated: true
+    last_healthcheck: "passed"
+    is_stub: true
+    official_sources: []
+    checked_at: null
+    license:
+      code_license: null
+      weight_license: null
+      research_use: null
+      noncommercial_demo: null
+      redistribution: null
+      output_terms: null
+      attribution: null
+      restrictions: []
+
+  - id: "pipeline-utilities-v1"
+    label: "標準メディア処理"
+    description: "文字起こし整理、参照素材選択、口元同期の受け渡し、動画仕上げを担当するローカル処理です。"
+    roles:
+      - "final_asr_worker"
+      - "interview_summary_worker"
+      - "episode_selector"
+      - "reference_frame_selector"
+      - "voice_reference_selector"
+      - "lip_sync_worker"
+      - "video_postprocess_worker"
+    backend: "local-utilities"
+    model_id: "moshimo-box/pipeline-utilities"
+    revision: "pipeline-utilities-v1"
+    dtype: "none"
+    quantization: "none"
+    device: "cpu"
+    environment: "app"
+    python_bin: "app/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.pipeline_utilities:create_worker"
+    model_path: null
+    parameters:
+      ffmpeg_path: "/usr/bin/ffmpeg"
+      ffprobe_path: "/usr/bin/ffprobe"
+    timeout_seconds: 300
+    fallback_model_id: null
+    installed: true
+    validated: true
+    last_healthcheck: "passed"
+    is_stub: false
+    official_sources: []
+    checked_at: "2026-07-16"
+    license:
+      code_license: "Project-local implementation"
+      weight_license: null
+      research_use: "Permitted"
+      noncommercial_demo: "Permitted"
+      redistribution: "Follows this project's license"
+      output_terms: "No model-specific output conditions"
+      attribution: null
+      restrictions:
+        - "Input and generated session files must be deleted at session end"
+
+  - id: "kotoba-whisper-v2-faster-fp16"
+    label: "Kotoba-Whisper v2.0 faster (FP16)"
+    description: "日本語のターン単位文字起こし用。CTranslate2版を独立GPUワーカーで実行します。"
+    roles:
+      - "streaming_asr_worker"
+      - "final_asr_worker"
+    backend: "faster-whisper"
+    model_id: "kotoba-tech/kotoba-whisper-v2.0-faster"
+    revision: "f44edd35eaeb2274e85ac7b31fb2c6f59ff1c4bc"
+    dtype: "float16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "app"
+    python_bin: "app/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.faster_whisper_asr:create_worker"
+    model_path: "asr/kotoba-whisper-v2.0-faster"
+    timeout_seconds: 60
+    fallback_model_id: null
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://huggingface.co/kotoba-tech/kotoba-whisper-v2.0-faster"
+      - "https://huggingface.co/kotoba-tech/kotoba-whisper-v2.0"
+      - "https://github.com/SYSTRAN/faster-whisper"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "MIT (faster-whisper)"
+      weight_license: "MIT (converted repository metadata); source model repository: Apache-2.0"
+      research_use: "Permitted under the listed licenses"
+      noncommercial_demo: "Permitted under the listed licenses"
+      redistribution: "Retain applicable copyright and license notices"
+      output_terms: "No model-specific output condition is stated in the model cards"
+      attribution: "Retain applicable notices when redistributing code or weights"
+      restrictions:
+        - "Recorded personal data remains subject to the project's consent and deletion rules"
+
+  - id: "qwen3-4b-instruct-2507-bf16"
+    label: "Qwen3 4B Instruct 2507 (BF16)"
+    description: "応答開始速度を優先した日本語インタビュー用の非thinkingモデルです。"
+    roles:
+      - "interview_llm_worker"
+      - "script_design_llm_worker"
+      - "script_safety_review_worker"
+    backend: "transformers"
+    model_id: "Qwen/Qwen3-4B-Instruct-2507"
+    revision: "cdbee75f17c01a7cc42f958dc650907174af0554"
+    dtype: "bfloat16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "app"
+    python_bin: "app/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.transformers_interview_llm:create_worker"
+    model_path: "llm/qwen3-4b-instruct-2507"
+    parameters:
+      stage_max_new_tokens: 220
+      narration_max_new_tokens: 180
+      text_revision_retry_count: 1
+      safety_verdict_max_new_tokens: 12
+      safety_rewrite_max_new_tokens: 180
+    timeout_seconds: 180
+    fallback_model_id: "foundation-stub"
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507"
+      - "https://github.com/QwenLM/Qwen3"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "Apache-2.0 (Transformers integration and Qwen repository)"
+      weight_license: "Apache-2.0"
+      research_use: "Permitted"
+      noncommercial_demo: "Permitted"
+      redistribution: "Retain the Apache-2.0 license and applicable notices"
+      output_terms: "No model-specific output condition is stated in the model card"
+      attribution: "Retain applicable notices when redistributing code or weights"
+      restrictions:
+        - "Generated interview questions remain subject to the project's safety rules"
+
+  - id: "qwen3-vl-8b-instruct-bf16"
+    label: "Qwen3-VL 8B Instruct (BF16)"
+    description: "テキストのみのインタビュー、または文字起こしと参照フレームを使う映像設計に対応する高品質VLMです。"
+    roles:
+      - "interview_llm_worker"
+      - "script_design_llm_worker"
+      - "script_safety_review_worker"
+    backend: "transformers"
+    model_id: "Qwen/Qwen3-VL-8B-Instruct"
+    revision: "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
+    dtype: "bfloat16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "app"
+    python_bin: "app/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.transformers_generation_llm:create_worker"
+    model_path: "llm/qwen3-vl-8b-instruct"
+    parameters:
+      multimodal: true
+      visual_observation_max_new_tokens: 220
+      stage_max_new_tokens: 240
+      narration_max_new_tokens: 180
+      text_revision_retry_count: 1
+      safety_verdict_max_new_tokens: 12
+      safety_rewrite_max_new_tokens: 180
+    timeout_seconds: 480
+    fallback_model_id: "qwen3-4b-instruct-2507-bf16"
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct"
+      - "https://github.com/QwenLM/Qwen3-VL"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "Apache-2.0"
+      weight_license: "Apache-2.0"
+      research_use: "Permitted"
+      noncommercial_demo: "Permitted"
+      redistribution: "Retain the Apache-2.0 license and applicable notices"
+      output_terms: "No model-specific output condition is stated in the model card"
+      attribution: "Retain applicable notices when redistributing code or weights"
+      restrictions:
+        - "Visual observations must not infer sensitive personal attributes"
+
+
+  - id: "fish-s2-pro-bf16"
+    label: "Fish Audio S2 Pro (BF16)"
+    description: "インタビュー音声を参照し、日本語の未来メッセージを本人の声質で生成します。"
+    roles:
+      - "voice_clone_tts_worker"
+    backend: "fish-speech"
+    model_id: "fishaudio/s2-pro"
+    revision: "1de9996b6be38b745688de084d87a5633f714e4e"
+    dtype: "bfloat16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "generation"
+    python_bin: "generation/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.fish_s2_tts:create_worker"
+    model_path: "tts/fish-s2-pro"
+    parameters:
+      compile: false
+      max_new_tokens: 4096
+      chunk_length: 300
+      top_p: 0.8
+      repetition_penalty: 1.1
+      temperature: 0.8
+      seed: 42
+    timeout_seconds: 600
+    fallback_model_id: null
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://github.com/fishaudio/fish-speech"
+      - "https://huggingface.co/fishaudio/s2-pro"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "Fish Audio Research License (2026-03-07)"
+      weight_license: "Fish Audio Research License (2026-03-07)"
+      research_use: "Permitted under the research license"
+      noncommercial_demo: "Permitted; commercial use requires a separate Fish Audio license"
+      redistribution: "Include the license and required Notice attribution"
+      output_terms: "Outputs are owned by the user to the extent permitted by law; acceptable-use restrictions apply"
+      attribution: "Prominently display Built with Fish Audio in a related UI or documentation"
+      restrictions:
+        - "Commercial use requires a separate written license"
+        - "Do not use materials or outputs to create or improve another foundational generative AI model"
+        - "Voice cloning requires explicit consent from the recorded speaker"
+
+  - id: "flux2-klein-4b-bf16"
+    label: "FLUX.2 Klein 4B (BF16)"
+    description: "参照フレームの本人性を保ちながら、未来の本人と背景を4ステップで生成します。"
+    roles:
+      - "image_generation_worker"
+    backend: "diffusers"
+    model_id: "black-forest-labs/FLUX.2-klein-4B"
+    revision: "e7b7dc27f91deacad38e78976d1f2b499d76a294"
+    dtype: "bfloat16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "flux2-klein"
+    python_bin: "flux2-klein/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.flux2_klein_image:create_worker"
+    model_path: "image/flux2-klein-4b"
+    parameters:
+      height: 768
+      width: 768
+      num_inference_steps: 4
+      guidance_scale: 1.0
+      max_sequence_length: 512
+      seed: 42
+      cpu_offload: false
+    timeout_seconds: 600
+    fallback_model_id: null
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://github.com/black-forest-labs/flux2"
+      - "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B"
+      - "https://github.com/huggingface/diffusers"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "Apache-2.0 (FLUX.2 reference and Diffusers)"
+      weight_license: "Apache-2.0"
+      research_use: "Permitted"
+      noncommercial_demo: "Permitted"
+      redistribution: "Retain applicable Apache-2.0 notices"
+      output_terms: "No model-specific output restriction stated in the official model materials"
+      attribution: "Retain applicable notices when redistributing code or weights"
+      restrictions:
+        - "Generated identity edits require the recorded person's explicit consent"
+
+  - id: "flux2-klein-9b-bf16"
+    label: "FLUX.2 Klein 9B (BF16)"
+    description: "約29GB VRAMで動作する高品質な参照画像編集モデルです。本人性と未来設定の両立を優先します。"
+    roles:
+      - "image_generation_worker"
+    backend: "diffusers"
+    model_id: "black-forest-labs/FLUX.2-klein-9B"
+    revision: "92196c8e11f7b6cf2b7493e037d8c5345c559216"
+    dtype: "bfloat16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "flux2-klein"
+    python_bin: "flux2-klein/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.flux2_klein_image:create_worker"
+    model_path: "image/flux2-klein-9b"
+    parameters:
+      height: 768
+      width: 768
+      num_inference_steps: 4
+      guidance_scale: 1.0
+      max_sequence_length: 512
+      seed: 42
+      cpu_offload: false
+    timeout_seconds: 900
+    fallback_model_id: "flux2-klein-4b-bf16"
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://github.com/black-forest-labs/flux2"
+      - "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B"
+      - "https://github.com/huggingface/diffusers"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "Apache-2.0 (FLUX.2 reference and Diffusers)"
+      weight_license: "FLUX Non-Commercial License"
+      research_use: "Permitted under the FLUX Non-Commercial License"
+      noncommercial_demo: "Permitted under the FLUX Non-Commercial License"
+      redistribution: "Subject to the FLUX Non-Commercial License"
+      output_terms: "Subject to the license and acceptable-use policy"
+      attribution: "Retain applicable notices and do not imply BFL endorsement"
+      restrictions:
+        - "Hugging Face access requires accepting the license conditions"
+        - "Use an inference filter or manual review for inputs and outputs"
+        - "Generated identity edits require the recorded person's explicit consent"
+
+  - id: "musetalk-1.5-fp16"
+    label: "MuseTalk 1.5 (FP16 / Fast)"
+    description: "未来画像の口元を生成音声へ同期する高速構成です。全身動作より完走速度を優先します。"
+    roles:
+      - "video_generation_worker"
+    backend: "musetalk-1.5"
+    model_id: "TMElyralab/MuseTalk"
+    revision: "3ef28bc5cff08c90ad8178a25f1b570cd800170f"
+    dtype: "float16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "musetalk"
+    python_bin: "musetalk/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.echomimic_v3_video:create_worker"
+    model_path: "musetalk-source/models/musetalkV15"
+    parameters:
+      source_path: "musetalk-source"
+      unet_model_path: "musetalk-source/models/musetalkV15/unet.pth"
+      unet_config_path: "musetalk-source/models/musetalkV15/musetalk.json"
+      whisper_dir: "musetalk-source/models/whisper"
+      ffmpeg_path: "/usr/bin"
+      ffprobe_path: "/usr/bin/ffprobe"
+      fps: 25
+      batch_size: 16
+      bbox_shift: 0
+      extra_margin: 10
+      parsing_mode: "jaw"
+      left_cheek_width: 90
+      right_cheek_width: 90
+      use_float16: true
+    timeout_seconds: 600
+    fallback_model_id: null
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://github.com/TMElyralab/MuseTalk"
+      - "https://huggingface.co/TMElyralab/MuseTalk"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "MIT"
+      weight_license: "CreativeML Open RAIL-M (repository metadata)"
+      research_use: "Permitted"
+      noncommercial_demo: "Permitted"
+      redistribution: "Retain applicable license notices for MuseTalk and bundled dependencies"
+      output_terms: "Use generated media lawfully and responsibly"
+      attribution: "Retain applicable notices when redistributing code or weights"
+      restrictions:
+        - "Third-party VAE, Whisper and face-analysis components retain their own licenses"
+        - "Use only consented research-lab member images and voices in the public demo"
+
+  - id: "echomimic-v3-flash-bf16"
+    label: "EchoMimicV3 Flash (BF16)"
+    description: "未来画像を、生成音声とテキスト指示に合わせて長尺分割しながら動かします。"
+    roles:
+      - "video_generation_worker"
+    backend: "echomimic-v3-flash"
+    model_id: "BadToBest/EchoMimicV3/echomimicv3-flash-pro"
+    revision: "311e176905a8c4c24b240b530488fe636ce4d249"
+    dtype: "bfloat16"
+    quantization: "none"
+    device: "cuda:0"
+    environment: "echomimic-v3"
+    python_bin: "echomimic-v3/bin/python"
+    command: ["-m", "backend.app.workers.runtime"]
+    adapter_entrypoint: "backend.app.workers.adapters.echomimic_v3_video:create_worker"
+    model_path: null
+    parameters:
+      source_path: "echomimic-v3-source"
+      config_path: "echomimic-v3-source/config/config.yaml"
+      base_model_path: "video/echomimic-v3-flash/Wan2.1-Fun-V1.1-1.3B-InP"
+      transformer_path: "video/echomimic-v3-flash/echomimicv3-flash-pro/diffusion_pytorch_model.safetensors"
+      wav2vec_model_path: "video/echomimic-v3-flash/chinese-wav2vec2-base"
+      ffprobe_path: "/usr/bin/ffprobe"
+      sample_size: [512, 512]
+      fps: 25
+      chunk_frames: 113
+      overlap_frames: 8
+      num_inference_steps: 8
+      sampler_name: "Flow_Unipc"
+      guidance_scale: 5.0
+      audio_guidance_scale: 2.0
+      audio_scale: 1.0
+      teacache_threshold: 0.1
+      num_skip_start_steps: 5
+      weight_dtype: "bfloat16"
+      shift: 5.0
+      seed: 43
+      enable_riflex: true
+      riflex_k: 6
+    timeout_seconds: 1800
+    fallback_model_id: null
+    installed: false
+    validated: false
+    last_healthcheck: "not_run"
+    is_stub: false
+    official_sources:
+      - "https://github.com/antgroup/echomimic_v3"
+      - "https://huggingface.co/BadToBest/EchoMimicV3"
+      - "https://huggingface.co/alibaba-pai/Wan2.1-Fun-V1.1-1.3B-InP"
+      - "https://modelscope.cn/models/TencentGameMate/chinese-wav2vec2-base"
+    checked_at: "2026-07-16"
+    license:
+      code_license: "Apache-2.0"
+      weight_license: "Apache-2.0 (EchoMimicV3 and listed base model repositories)"
+      research_use: "Permitted"
+      noncommercial_demo: "Permitted"
+      redistribution: "Retain applicable Apache-2.0 notices"
+      output_terms: "Official repository claims no rights over generated content; lawful and non-harmful use remains the operator's responsibility"
+      attribution: "Retain applicable notices when redistributing code or weights"
+      restrictions:
+        - "Do not generate harmful content or disclose personal information for harm"
+        - "Use only consented research-lab member images and voices in the public demo"

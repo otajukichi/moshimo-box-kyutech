@@ -1,0 +1,103 @@
+app:
+  name: "もしもボックス九工大出張所"
+  public_base_url: "https://aisvr177.aikb.kyutech.ac.jp"
+  base_path: "/"
+  debug_mode: false
+
+server:
+  host: "127.0.0.1"
+  default_port: 8789
+
+storage:
+  session_root: "data/sessions"
+  staff_settings_path: "data/runtime/staff-settings.json"
+  metrics_db_path: "data/metrics/worker-metrics.sqlite3"
+  model_root: "models"
+  log_root: "logs"
+  # Null derives <workspace>/env/moshimo-box-kyutech from the clone location.
+  environment_root: null
+
+episodes:
+  source_dir: "config/episodes"
+  effects_path: "config/effects.yaml"
+  rarity_weights:
+    R: 50
+    SR: 30
+    SSR: 16
+    UR: 4
+
+model_catalog:
+  source_path: "config/model-catalog.yaml"
+  local_source_path: "config/model-catalog.local.yaml"
+
+pipeline:
+  stub_step_delay_seconds: 0.35
+  worker_restart_count: 1
+  json_correction_retry_count: 1
+  gpu_release_wait_seconds: 1.0
+  cpu_memory_warning_mb: 65536
+  cpu_memory_hard_limit_mb: 98304
+
+capture:
+  video_chunk_seconds: 5
+  silence_seconds: 1.8
+  speech_start_threshold: 0.025
+  response_max_seconds: 30
+  upload_retry_count: 3
+  browser_queue_limit_mb: 200
+  max_chunk_size_mb: 64
+  finalize_timeout_seconds: 15
+  stale_session_seconds: 3600
+  stale_check_interval_seconds: 60
+  camera_stable_seconds: 1.5
+  brightness_min: 45
+  brightness_max: 220
+  debug_short_answer_count: 2
+  debug_short_time_limit_seconds: 45
+
+worker_runtime:
+  process_isolation_enabled: true
+  host: "127.0.0.1"
+  startup_timeout_seconds: 20
+  request_timeout_seconds: 7200
+  shutdown_timeout_seconds: 8
+  auth_header: "X-Moshimo-Worker-Key"
+
+logging:
+  level: "INFO"
+  log_transcripts: false
+  log_prompts: false
+  log_media_paths: false
+
+staff_defaults:
+  generation_time_limit_seconds: 1800
+  quality_profile: "balanced"
+  stage_models: {}
+  episode_mode: "formal"
+  episode_selection: "random"
+  fixed_episode_id: null
+  auto_model_fallback: false
+  simple_video_fallback: false
+  allow_video_download: false
+  target_transcript_chars: 700
+  minimum_transcript_chars: 400
+  conversation_time_limit_seconds: 180
+  debug_test_mode: "normal"
+
+staff_limits:
+  generation_time_limit_seconds:
+    min: 60
+    max: 7200
+    step: 60
+  target_transcript_chars:
+    min: 200
+    max: 1500
+    step: 50
+  minimum_transcript_chars:
+    min: 100
+    max: 1200
+    step: 50
+  conversation_time_limit_seconds:
+    min: 30
+    max: 600
+    step: 15

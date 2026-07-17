@@ -1,0 +1,14 @@
+schema_version: "1.0"
+id: "mars-settlement"
+name: "火星移住区の暮らし"
+content: "火星の新しい街で働きながら、地球とは少し違う毎日を送っている。"
+base_rarity: "R"
+weight: 14
+enabled: true
+formal_mode_allowed: true
+public_demo_allowed: true
+limited_only: false
+min_age: null
+max_age: null
+generation_instruction: "生活感のあるSFとして描き、本人の現在の趣味や得意なことを未来の日常へ取り込む。"
+tags: ["mars", "daily-life", "public"]
