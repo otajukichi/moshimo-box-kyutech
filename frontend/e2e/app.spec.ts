@@ -98,6 +98,58 @@ test("title and staff settings stay within the desktop viewport", async ({
   await page.screenshot({ path: testInfo.outputPath("settings-desktop.png") });
 });
 
+test("closing settings persists a custom GPT-OSS selection", async ({
+  page,
+  request
+}) => {
+  const initialResponse = await request.get("api/settings");
+  const initial = await initialResponse.json();
+  const readyPreparation = {
+    ...initial.preparation,
+    state: "ready",
+    message: "インタビューを開始できます"
+  };
+  let savedSettings: Record<string, any> | null = null;
+
+  await page.route("**/api/runtime/status", async (route) => {
+    await route.fulfill({ json: { preparation: readyPreparation } });
+  });
+  await page.route("**/api/session/current", async (route) => {
+    await route.fulfill({ json: { session: null } });
+  });
+  await page.route("**/api/settings", async (route) => {
+    if (route.request().method() !== "PUT") {
+      await route.continue();
+      return;
+    }
+    savedSettings = route.request().postDataJSON();
+    await route.fulfill({
+      json: {
+        ...initial,
+        settings: savedSettings
+      }
+    });
+  });
+
+  await waitForTitle(page);
+  await page.getByRole("button", { name: "運営設定を開く" }).click();
+  const drawer = page.locator(".settings-drawer");
+  await drawer.getByText("工程ごとのモデル", { exact: true }).click();
+  const interviewModel = drawer.getByLabel("インタビュー会話");
+  await interviewModel.selectOption("gpt-oss-20b-mxfp4-vllm");
+  await drawer.getByRole("button", { name: "閉じる" }).click();
+
+  await expect.poll(
+    () => savedSettings?.stage_models?.interview_llm_worker
+  ).toBe("gpt-oss-20b-mxfp4-vllm");
+  await expect.poll(() => savedSettings?.quality_profile).toBe("custom");
+
+  await page.getByRole("button", { name: "運営設定を開く" }).click();
+  await drawer.getByText("工程ごとのモデル", { exact: true }).click();
+  await expect(interviewModel).toHaveValue("gpt-oss-20b-mxfp4-vllm");
+});
+
+
 test("technology guide fills the viewport and explains a multimodal model", async ({
   page
 }, testInfo) => {
@@ -141,7 +193,8 @@ test("mobile title and consent remain readable", async ({ page }, testInfo) => {
 test.describe("captured demo flow", () => {
 
   test("moves from consent through capture to the unimplemented video review", async ({
-    page
+    page,
+    request
   }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-edge-engine", "full media flow runs once");
     const failedMediaStatuses: number[] = [];
@@ -219,6 +272,32 @@ test.describe("captured demo flow", () => {
       });
     });
 
+    await page.route("**/api/config", async (route) => {
+      const response = await route.fetch();
+      const appConfig = await response.json();
+      await route.fulfill({
+        response,
+        json: { ...appConfig, debug_mode: true }
+      });
+    });
+
+    const currentSettingsResponse = await request.get("api/settings");
+    const currentSettings = await currentSettingsResponse.json();
+    const stubModels = Object.fromEntries(
+      Object.keys(currentSettings.settings.stage_models).map((role) => [
+        role,
+        "foundation-stub"
+      ])
+    );
+    const stubSettingsResponse = await request.put("api/settings", {
+      data: {
+        ...currentSettings.settings,
+        quality_profile: "custom",
+        stage_models: stubModels
+      }
+    });
+    expect(stubSettingsResponse.ok()).toBe(true);
+
     await waitForTitle(page);
     await page.getByRole("button", { name: "始める" }).click();
     await page.getByRole("checkbox", { name: /本人の声を模倣/ }).check();
@@ -235,8 +314,8 @@ test.describe("captured demo flow", () => {
     await expect(page.getByText("未来からのメッセージを", { exact: false })).toBeVisible();
     await page.getByRole("button", { name: "生成を完了" }).click();
 
-    await expect(page.getByText("動画生成ワーカーは未接続です")).toBeVisible();
-    await expect(page.getByText("AI生成映像")).toBeVisible();
+    await expect(page.getByText("動画生成ワーカーは未接続です", { exact: true })).toBeVisible();
+    await expect(page.getByText("AI生成映像", { exact: true })).toBeVisible();
     await expect(page.getByText("保存接続を再試行しています")).toHaveCount(0);
     expect(failedMediaStatuses).toEqual([]);
     await expectNoHorizontalOverflow(page);
@@ -251,7 +330,7 @@ test.describe("captured demo flow", () => {
       .click();
     await expect(page.getByText("未来からのメッセージを", { exact: false })).toBeVisible();
     await page.getByRole("button", { name: "生成を完了" }).click();
-    await expect(page.getByText("動画生成ワーカーは未接続です")).toBeVisible();
+    await expect(page.getByText("動画生成ワーカーは未接続です", { exact: true })).toBeVisible();
     await expect(page.getByText("保存接続を再試行しています")).toHaveCount(0);
 
     await page.getByRole("button", { name: "終了してデータを削除" }).click();

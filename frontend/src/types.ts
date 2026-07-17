@@ -128,6 +128,7 @@ export interface RuntimeOptions {
 export interface SettingsResponse {
   settings: StaffSettings;
   options: RuntimeOptions;
+  preparation: Preparation;
 }
 
 export interface GenerationStep {

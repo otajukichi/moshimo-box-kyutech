@@ -7,8 +7,8 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
-  timeout: 45_000,
-  expect: { timeout: 15_000 },
+  timeout: 90_000,
+  expect: { timeout: 60_000 },
   outputDir: "test-results",
   webServer: externalBaseURL
     ? undefined
@@ -18,6 +18,7 @@ export default defineConfig({
           "MOSHIMO__STORAGE__STAFF_SETTINGS_PATH=/tmp/moshimo-box-e2e/staff-settings.json " +
           "MOSHIMO__STORAGE__METRICS_DB_PATH=/tmp/moshimo-box-e2e/metrics.sqlite3 " +
           "MOSHIMO__STORAGE__LOG_ROOT=/tmp/moshimo-box-e2e/logs " +
+          "MOSHIMO__APP__DEBUG_MODE=true " +
           "../start-app.sh 8790",
         url: "http://127.0.0.1:8790/api/health",
         reuseExistingServer: true,

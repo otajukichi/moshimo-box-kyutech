@@ -199,6 +199,7 @@ def create_app(config_manager: ConfigManager | None = None) -> FastAPI:
     def settings_payload() -> dict[str, Any]:
         return {
             "settings": config.staff.model_dump(mode="json"),
+            "preparation": workers.status().model_dump(mode="json"),
             "options": RuntimeOptions(
                 models=config.catalog.options(),
                 profile_models={
@@ -283,6 +284,7 @@ def create_app(config_manager: ConfigManager | None = None) -> FastAPI:
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         if await store.current() is None:
+            workers.mark_interview_reconfigure_pending(previous, config.staff)
             spawn(workers.reconfigure(previous, config.staff))
         return settings_payload()
 
@@ -291,6 +293,7 @@ def create_app(config_manager: ConfigManager | None = None) -> FastAPI:
         previous = config.staff.model_copy(deep=True)
         config.reset_staff()
         if await store.current() is None:
+            workers.mark_interview_reconfigure_pending(previous, config.staff)
             spawn(workers.reconfigure(previous, config.staff))
         return settings_payload()
 

@@ -1881,6 +1881,7 @@ export default function App() {
               const response = await api.saveSettings(next);
               setSettings(response.settings);
               setOptions(response.options);
+              setPreparation(response.preparation);
               setSettingsOpen(false);
               setToast("運営設定を保存しました");
             })
@@ -1890,6 +1891,7 @@ export default function App() {
               const response = await api.resetSettings();
               setSettings(response.settings);
               setOptions(response.options);
+              setPreparation(response.preparation);
               setToast("初期設定に戻しました");
             })
           }

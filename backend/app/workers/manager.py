@@ -616,12 +616,30 @@ class WorkerOrchestrator:
         previous: StaffSettings,
         current: StaffSettings,
     ) -> None:
+        if self.requires_interview_reconfigure(previous, current):
+            await self.prepare_interview(current)
+
+    def requires_interview_reconfigure(
+        self,
+        previous: StaffSettings,
+        current: StaffSettings,
+    ) -> bool:
         changed = any(
             previous.stage_models.get(role) != current.stage_models.get(role)
             for role in WORKER_GROUP_ROLES[WorkerGroup.INTERVIEW]
         )
-        if changed or self.preparation_state != PreparationState.READY:
-            await self.prepare_interview(current)
+        return changed or self.preparation_state != PreparationState.READY
+
+    def mark_interview_reconfigure_pending(
+        self,
+        previous: StaffSettings,
+        current: StaffSettings,
+    ) -> bool:
+        if not self.requires_interview_reconfigure(previous, current):
+            return False
+        self.preparation_state = PreparationState.LOADING
+        self.preparation_message = "変更したインタビューAIを準備しています"
+        return True
 
     async def run_prepared_role(
         self,

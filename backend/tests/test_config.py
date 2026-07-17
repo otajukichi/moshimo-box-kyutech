@@ -5,6 +5,7 @@ from pathlib import Path
 
 from backend.app.config import ConfigManager
 from backend.app.model_catalog import _merge_catalog
+from backend.app.schemas import QualityProfile
 
 
 def test_config_precedence(project_root: Path) -> None:
@@ -53,6 +54,19 @@ def test_custom_model_selection_is_validated(project_root: Path) -> None:
         assert "missing-model" in str(exc)
     else:
         raise AssertionError("missing model must be rejected")
+
+
+def test_custom_profile_is_preserved_after_save_and_reload(project_root: Path) -> None:
+    manager = ConfigManager(project_root, environ={"MOSHIMO_TEST": "1"})
+    custom = manager.staff.model_copy(deep=True)
+    custom.quality_profile = QualityProfile.CUSTOM
+
+    saved = manager.save_staff(custom)
+    reloaded = ConfigManager(project_root, environ={"MOSHIMO_TEST": "1"})
+
+    assert saved.quality_profile.value == "custom"
+    assert reloaded.staff.quality_profile.value == "custom"
+    assert reloaded.staff.stage_models == custom.stage_models
 
 
 def test_local_model_catalog_overrides_machine_fields(project_root: Path) -> None:

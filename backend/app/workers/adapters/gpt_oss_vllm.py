@@ -23,6 +23,7 @@ from .transformers_generation_llm import (
 )
 from .transformers_interview_llm import (
     SYSTEM_PROMPT,
+    TURN_INSTRUCTION,
     TransformersInterviewLlmAdapter,
 )
 
@@ -274,7 +275,7 @@ class GptOssInterviewLlmAdapter(TransformersInterviewLlmAdapter):
             "remaining_time_seconds": turn.remaining_time_seconds,
         }
         user_prompt = (
-            "現在の会話状態を読み、直前の発話から広げる新しい切り口の質問を一つ決めてください。\n"
+            f"{TURN_INSTRUCTION}\n"
             + json.dumps(compact_turn, ensure_ascii=False, separators=(",", ":"))
         )
         parameters = self._model_spec.parameters

@@ -193,6 +193,30 @@ def test_isolated_worker_process_is_removed_after_cancellation(tmp_path) -> None
 
 
 
+def test_interview_model_change_marks_preparation_loading(fast_config) -> None:
+    from backend.app.metrics import MetricsStore
+    from backend.app.schemas import PreparationState
+    from backend.app.workers.manager import WorkerOrchestrator
+
+    orchestrator = WorkerOrchestrator(
+        fast_config,
+        MetricsStore(fast_config.metrics_db_path),
+    )
+    orchestrator.preparation_state = PreparationState.READY
+    previous = fast_config.staff.model_copy(deep=True)
+    current = fast_config.staff.model_copy(deep=True)
+    current.stage_models[WorkerRole.INTERVIEW_LLM] = "different-model"
+
+    changed = orchestrator.mark_interview_reconfigure_pending(
+        previous,
+        current,
+    )
+
+    assert changed is True
+    assert orchestrator.preparation_state == PreparationState.LOADING
+    assert "変更したインタビューAI" in orchestrator.preparation_message
+
+
 def test_prepared_interview_worker_stays_loaded(fast_config, tmp_path) -> None:
     from backend.app.metrics import MetricsStore
     from backend.app.schemas import SessionRecord

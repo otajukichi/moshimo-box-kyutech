@@ -131,6 +131,11 @@ export function SettingsDrawer({
     [draft.episode_mode, options.episodes]
   );
 
+  const hasUnsavedChanges = useMemo(
+    () => JSON.stringify(draft) !== JSON.stringify(settings),
+    [draft, settings]
+  );
+
   const update = <K extends keyof StaffSettings>(
     key: K,
     value: StaffSettings[K]
@@ -179,12 +184,21 @@ export function SettingsDrawer({
     await onSave(normalized);
   };
 
+  const close = () => {
+    if (busy) return;
+    if (hasUnsavedChanges) {
+      void save();
+      return;
+    }
+    onClose();
+  };
+
   return (
     <>
       <button
         className={`drawer-scrim ${open ? "is-open" : ""}`}
         aria-hidden={!open}
-        onClick={onClose}
+        onClick={close}
         aria-label="設定を閉じる"
         tabIndex={open ? 0 : -1}
       />
@@ -198,7 +212,7 @@ export function SettingsDrawer({
             <span className="eyebrow">OPERATOR</span>
             <h2>運営設定</h2>
           </div>
-          <button className="icon-button" onClick={onClose} aria-label="閉じる">
+          <button className="icon-button" onClick={close} aria-label="閉じる">
             <X size={21} />
           </button>
         </header>
