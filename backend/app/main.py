@@ -152,7 +152,7 @@ def create_app(config_manager: ConfigManager | None = None) -> FastAPI:
             deadline_seconds=30,
             metadata={
                 "interview_turn": turn.model_dump(mode="json"),
-                "max_new_tokens": 192,
+                "max_new_tokens": 256,
             },
         )
         if not result.implemented:

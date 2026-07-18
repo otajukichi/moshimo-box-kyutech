@@ -163,9 +163,16 @@ test("technology guide fills the viewport and explains a multimodal model", asyn
   await expect(guide).toBeVisible();
   await expect.poll(async () => Math.round((await guide.boundingBox())?.x ?? -999)).toBe(0);
   await expect(
-    page.getByText("一つのAIモデルが複数のモダリティを入出力として扱う技術")
+    guide.getByText("一つのAIモデルが複数のモダリティを入出力として扱う技術")
   ).toBeVisible();
-  await expect(page.getByText("画像 + 音声 + 文字")).toBeVisible();
+  await expect(guide.getByText("単一モダリティ", { exact: true })).toBeVisible();
+  await expect(guide.getByText("画像 + 音声 + 文字", { exact: true }).first()).toBeVisible();
+  await expect(
+    guide.getByText("このデモ全体は複数のAIモデルを接続したシステムです", {
+      exact: false
+    })
+  ).toBeVisible();
+  await expect(guide.getByText("特徴表現", { exact: false })).toBeVisible();
 
   const bounds = await guide.boundingBox();
   expect(bounds?.x).toBe(0);

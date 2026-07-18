@@ -181,6 +181,7 @@
 }
 
 .explainer-copy h3,
+.guide-section-heading h3,
 .pipeline-heading h3,
 .technology-local h3 {
   margin: 12px 0 20px;
@@ -189,6 +190,7 @@
 }
 
 .explainer-copy p,
+.guide-section-heading p,
 .pipeline-heading p,
 .technology-local p {
   margin: 0 0 14px;
@@ -364,15 +366,6 @@
   background: #f1fbf6;
 }
 
-.pipeline-stage:nth-child(6) h4::after {
-  display: block;
-  margin-top: 7px;
-  color: #17845a;
-  content: "TEXT + AUDIO + IMAGE -> VIDEO";
-  font-size: 9px;
-  font-weight: 900;
-}
-
 .pipeline-stage h4 {
   margin: 28px 0 12px;
   font-size: 20px;
@@ -425,6 +418,329 @@
   --stage-color: #17845a;
 }
 
+.technology-patterns {
+  padding: 88px 0 92px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.guide-section-heading {
+  display: grid;
+  margin-bottom: 42px;
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.72fr);
+  gap: 64px;
+}
+
+.guide-section-heading h3 {
+  margin: 12px 0 0;
+  font-size: 34px;
+  line-height: 1.35;
+}
+
+.guide-section-heading p {
+  margin: 0 0 4px;
+}
+
+.model-pattern-list {
+  border-top: 1px solid var(--line);
+}
+
+.model-pattern {
+  --pattern-color: var(--blue);
+  display: grid;
+  min-height: 132px;
+  padding: 24px 22px 24px 16px;
+  align-items: center;
+  grid-template-columns:
+    42px minmax(155px, 0.82fr) minmax(185px, 0.9fr)
+    minmax(260px, 1.35fr) minmax(180px, 0.8fr);
+  gap: 20px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-left: 5px solid var(--pattern-color);
+  background: #fff;
+}
+
+.pattern-index {
+  color: var(--pattern-color);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.pattern-name {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pattern-name small,
+.pattern-example {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.pattern-name strong {
+  font-size: 16px;
+}
+
+.pattern-formula {
+  display: flex;
+  min-height: 46px;
+  padding: 0 13px;
+  align-items: center;
+  color: var(--pattern-color);
+  border: 1px solid color-mix(in srgb, var(--pattern-color) 34%, #d8deea);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--pattern-color) 7%, #fff);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.model-pattern > p {
+  margin: 0;
+  color: #526078;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.pattern-example {
+  color: var(--pattern-color);
+}
+
+.model-pattern-note {
+  margin: 18px 0 0;
+  padding: 2px 0 2px 18px;
+  color: var(--muted);
+  border-left: 3px solid #a8b6cf;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.model-pattern-note strong {
+  margin-right: 6px;
+  color: var(--blue-dark);
+}
+
+.pattern-cyan {
+  --pattern-color: #168e92;
+}
+
+.pattern-blue {
+  --pattern-color: var(--blue);
+}
+
+.pattern-yellow {
+  --pattern-color: #a67a00;
+}
+
+.pattern-green {
+  --pattern-color: #17845a;
+  background: #f6fcf8;
+}
+
+.technology-fusion {
+  padding: 88px 0 94px;
+  border-bottom: 1px solid #cde0d7;
+  background: #f1faf6;
+}
+
+.fusion-heading {
+  border-bottom: 1px solid #cde0d7;
+  padding-bottom: 34px;
+}
+
+.fusion-layout {
+  display: grid;
+  align-items: stretch;
+  grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+  gap: 54px;
+}
+
+.fusion-sources {
+  display: grid;
+  gap: 12px;
+}
+
+.fusion-source {
+  --fusion-color: var(--blue);
+  display: grid;
+  min-height: 128px;
+  padding: 20px 22px;
+  align-items: center;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 16px;
+  border: 1px solid #cadbd4;
+  border-left: 5px solid var(--fusion-color);
+  border-radius: 7px;
+  background: #fff;
+}
+
+.fusion-source > span {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  color: var(--fusion-color);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--fusion-color) 10%, #fff);
+  place-items: center;
+}
+
+.fusion-source > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fusion-source small {
+  color: var(--fusion-color);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.fusion-source strong {
+  font-size: 16px;
+}
+
+.fusion-source p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.fusion-image {
+  --fusion-color: #a67a00;
+}
+
+.fusion-sound {
+  --fusion-color: #168e92;
+}
+
+.fusion-text {
+  --fusion-color: var(--blue);
+}
+
+.fusion-result {
+  display: flex;
+  min-height: 410px;
+  padding: 42px;
+  justify-content: center;
+  flex-direction: column;
+  border: 1px solid #9ecab7;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.fusion-result-icon {
+  display: inline-grid;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 24px;
+  color: #fff;
+  border-radius: 7px;
+  background: #17845a;
+  place-items: center;
+}
+
+.fusion-result .eyebrow {
+  color: #17845a;
+}
+
+.fusion-result h4 {
+  margin: 10px 0 16px;
+  font-size: 25px;
+  line-height: 1.4;
+}
+
+.fusion-result > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+.fusion-result dl {
+  display: grid;
+  margin: 28px 0 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid #d5e3dd;
+  border-bottom: 1px solid #d5e3dd;
+}
+
+.fusion-result dl > div {
+  padding: 15px 12px;
+  border-right: 1px solid #d5e3dd;
+}
+
+.fusion-result dl > div:last-child {
+  border-right: 0;
+}
+
+.fusion-result dt {
+  color: #17845a;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.fusion-result dd {
+  margin: 5px 0 0;
+  color: #4f5e69;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.technology-glossary {
+  padding: 82px 0 88px;
+  border-top: 1px solid var(--line);
+  background: #f8fafc;
+}
+
+.glossary-heading {
+  margin-bottom: 34px;
+}
+
+.glossary-grid {
+  display: grid;
+  margin: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.glossary-grid > div {
+  min-height: 180px;
+  padding: 26px 24px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.glossary-grid dt {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.glossary-grid dt span {
+  color: var(--blue);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.glossary-grid dd {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
 .technology-local {
   padding: 72px 0;
   color: #fff;
@@ -469,9 +785,28 @@
 }
 
 @media (max-width: 900px) {
-  .explainer-layout {
+  .guide-section-heading,
+  .explainer-layout,
+  .fusion-layout {
     grid-template-columns: 1fr;
     gap: 42px;
+  }
+
+  .guide-section-heading {
+    gap: 18px;
+  }
+
+  .model-pattern {
+    grid-template-columns: 42px minmax(160px, 0.7fr) minmax(190px, 1fr);
+  }
+
+  .model-pattern > p,
+  .pattern-example {
+    grid-column: 2 / -1;
+  }
+
+  .glossary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .multimodal-diagram {
@@ -551,14 +886,39 @@
   }
 
   .technology-explainer,
-  .technology-pipeline {
+  .technology-patterns,
+  .technology-fusion,
+  .technology-pipeline,
+  .technology-glossary {
     padding: 62px 0;
   }
 
   .explainer-copy h3,
+  .guide-section-heading h3,
   .pipeline-heading h3,
   .technology-local h3 {
     font-size: 27px;
+  }
+
+  .guide-section-heading {
+    grid-template-columns: 1fr;
+    margin-bottom: 30px;
+  }
+
+  .model-pattern {
+    padding: 20px 14px 20px 10px;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 13px;
+  }
+
+  .pattern-formula,
+  .model-pattern > p,
+  .pattern-example {
+    grid-column: 2;
+  }
+
+  .pattern-formula {
+    min-height: 42px;
   }
 
   .multimodal-definition {
@@ -581,12 +941,46 @@
     min-height: 130px;
   }
 
+  .fusion-layout {
+    gap: 28px;
+  }
+
+  .fusion-source {
+    padding: 17px 14px;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .fusion-source > span {
+    width: 38px;
+    height: 38px;
+  }
+
+  .fusion-result {
+    min-height: 0;
+    padding: 28px 22px;
+  }
+
+  .fusion-result dl {
+    grid-template-columns: 1fr;
+  }
+
+  .fusion-result dl > div {
+    border-right: 0;
+    border-bottom: 1px solid #d5e3dd;
+  }
+
+  .fusion-result dl > div:last-child {
+    border-bottom: 0;
+  }
+
   .pipeline-heading {
     grid-template-columns: 1fr;
     gap: 20px;
   }
 
-  .technology-pipeline-grid {
+  .technology-pipeline-grid,
+  .glossary-grid {
     grid-template-columns: 1fr;
   }
 

@@ -4,7 +4,12 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from ..schemas import SCHEMA_VERSION, InterviewState, TranscriptEntry
+from ..schemas import (
+    SCHEMA_VERSION,
+    InterviewState,
+    InterviewTheme,
+    TranscriptEntry,
+)
 
 
 class InterviewTurnInput(BaseModel):
@@ -23,6 +28,11 @@ class InterviewTurnOutput(BaseModel):
     acquired_information: dict[str, Any] = Field(default_factory=dict)
     asked_topics: list[str] = Field(default_factory=list)
     next_topics: list[str] = Field(default_factory=list)
+    current_theme: InterviewTheme = InterviewTheme.FUTURE_QUESTION
+    topic_depth: int = Field(default=0, ge=0)
+    interesting_detail: str | None = None
+    topic_complete: bool = False
+    next_anchor: InterviewTheme | None = InterviewTheme.PRESENT_CONNECTION
     visitor_char_count: int = Field(ge=0)
     elapsed_seconds: int = Field(ge=0)
     should_end: bool = False

@@ -23,8 +23,8 @@ from .transformers_generation_llm import (
 )
 from .transformers_interview_llm import (
     SYSTEM_PROMPT,
-    TURN_INSTRUCTION,
     TransformersInterviewLlmAdapter,
+    build_turn_prompt,
 )
 
 
@@ -261,23 +261,7 @@ class GptOssInterviewLlmAdapter(TransformersInterviewLlmAdapter):
     ) -> tuple[str, int, int]:
         assert self._runtime is not None
         assert self._model_spec is not None
-        compact_turn = {
-            "transcript": [
-                {"speaker": entry.speaker, "text": entry.text}
-                for entry in turn.transcript[-12:]
-            ],
-            "acquired_information": turn.state.acquired_information,
-            "asked_topics": turn.state.asked_topics,
-            "next_topics": turn.state.next_topics,
-            "visitor_char_count": turn.state.visitor_char_count,
-            "elapsed_seconds": turn.state.elapsed_seconds,
-            "target_transcript_chars": turn.target_transcript_chars,
-            "remaining_time_seconds": turn.remaining_time_seconds,
-        }
-        user_prompt = (
-            f"{TURN_INSTRUCTION}\n"
-            + json.dumps(compact_turn, ensure_ascii=False, separators=(",", ":"))
-        )
+        user_prompt = build_turn_prompt(turn)
         parameters = self._model_spec.parameters
         max_tokens = max(
             int(metadata.get("max_new_tokens", 320)),

@@ -41,6 +41,14 @@ class ConversationPhase(StrEnum):
     CLOSING = "closing"
 
 
+class InterviewTheme(StrEnum):
+    FUTURE_QUESTION = "future_question"
+    PRESENT_CONNECTION = "present_connection"
+    CONCRETE_EPISODE = "concrete_episode"
+    FUTURE_EXPANSION = "future_expansion"
+    FUTURE_MESSAGE = "future_message"
+
+
 class StepStatus(StrEnum):
     PENDING = "pending"
     CURRENT = "current"
@@ -289,6 +297,11 @@ class InterviewState(BaseModel):
     acquired_information: dict[str, Any] = Field(default_factory=dict)
     asked_topics: list[str] = Field(default_factory=list)
     next_topics: list[str] = Field(default_factory=list)
+    current_theme: InterviewTheme = InterviewTheme.FUTURE_QUESTION
+    topic_depth: int = Field(default=0, ge=0)
+    interesting_detail: str | None = None
+    topic_complete: bool = False
+    next_anchor: InterviewTheme | None = InterviewTheme.PRESENT_CONNECTION
     visitor_char_count: int = 0
     elapsed_seconds: int = 0
     answer_count: int = 0

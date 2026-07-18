@@ -9,6 +9,8 @@ import pytest
 from backend.app.schemas import Episode, EpisodeEffect, WorkerRequest, WorkerRole
 from backend.app.schemas import InterviewState, TranscriptEntry
 from backend.app.workers.adapters.transformers_generation_llm import (
+    NARRATION_STYLE_GUIDANCE,
+    SCRIPT_SYSTEM_PROMPT,
     TransformersGenerationLlmAdapter,
 )
 from backend.app.workers.adapters.transformers_interview_llm import (
@@ -150,6 +152,8 @@ def test_script_design_is_assembled_from_plain_stage_answers(
     )
 
     assert len(calls) == 11
+    assert "文学的な比喩" in calls[3]
+    assert "具体的な名詞や行動" in calls[3]
     assert isinstance(output.future_world, str)
     assert 80 <= len(output.narration_script) <= 110
     assert len(output.shot_plan) == 1
@@ -158,7 +162,39 @@ def test_script_design_is_assembled_from_plain_stage_answers(
     assert any(event.phase == "output_validation" for event in events)
 
 
-def test_interview_reply_replaces_profile_question_with_one_future_question() -> None:
+def test_narration_prompt_requires_plain_video_message_language() -> None:
+    assert "スマートフォンで近況を話すような口調" in SCRIPT_SYSTEM_PROMPT
+    assert "比喩、ポエム調" in SCRIPT_SYSTEM_PROMPT
+    assert "具体的な名詞や行動を最低一つ" in NARRATION_STYLE_GUIDANCE
+    assert "悪い例" in NARRATION_STYLE_GUIDANCE
+    assert "良い例" in NARRATION_STYLE_GUIDANCE
+
+
+def test_poetic_narration_is_marked_for_revision() -> None:
+    narration = (
+        "あの日の好奇心が未来への扉を開き、新しい景色が待っています。"
+        "可能性を信じて、一歩ずつ進んでください。"
+    )
+
+    reasons = TransformersGenerationLlmAdapter._narration_revision_reasons(
+        narration
+    )
+
+    assert "詩的な定型句を含む" in reasons
+
+
+def test_narration_padding_does_not_add_old_poetic_phrases() -> None:
+    narration = TransformersGenerationLlmAdapter._normalize_narration(
+        "今は軌道農園で、仲間と野菜の育て方を試しています。"
+    )
+
+    assert 80 <= len(narration) <= 110
+    assert "未来の可能性" not in narration
+    assert "どんな景色" not in narration
+    assert "未来で会える日" not in narration
+
+
+def test_interview_reply_preserves_a_valid_model_utterance() -> None:
     turn = InterviewTurnInput(
         transcript=[
             TranscriptEntry(
@@ -179,22 +215,18 @@ def test_interview_reply_replaces_profile_question_with_one_future_question() ->
     raw = json.dumps(
         {
             "acquired_information": {"future_question": ["宇宙での暮らし"]},
-            "asked_topics": ["profile"],
-            "next_topics": ["hobby"],
-            "next_utterance": "趣味は何ですか？",
+            "asked_topics": ["future_question"],
+            "next_topics": [],
+            "next_utterance": "宇宙で暮らす自分を想像しているんだね。",
         },
         ensure_ascii=False,
     )
 
     output = TransformersInterviewLlmAdapter._parse_output(raw, turn)
 
-    assert "趣味" not in output.next_utterance
-    assert "楽しかったこと" not in output.next_utterance
-    assert TransformersInterviewLlmAdapter._looks_like_question(
-        output.next_utterance
-    )
-    assert output.next_utterance.count("？") + output.next_utterance.count("?") == 1
-    assert "宇宙" in output.next_utterance
+    assert output.next_utterance == "宇宙で暮らす自分を想像しているんだね。"
+    assert output.current_theme.value == "future_question"
+    assert output.topic_depth == 1
 
 
 def test_interview_vl_messages_are_text_only_multimodal_content() -> None:

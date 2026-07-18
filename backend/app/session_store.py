@@ -12,6 +12,7 @@ from .schemas import (
     CaptureStats,
     ConversationPhase,
     DeviceCheckReport,
+    InterviewTheme,
     SessionPublic,
     SessionRecord,
     SessionState,
@@ -25,30 +26,40 @@ if TYPE_CHECKING:
     from .contracts import InterviewTurnOutput
 
 
-INTERVIEW_QUESTIONS = [
-    ("future-question", "未来の自分に何か聞きたいことはありますか？"),
-    (
-        "future-scene",
-        "いいね〜。未来の自分からその答えが届く場所は、どんな景色になっていそう？",
-    ),
-    (
-        "future-surprise",
-        "それ、面白い！未来の自分が予想外の一言を返すなら、どんな感じだと思う？",
-    ),
-    (
-        "future-message",
-        "だんだん未来が見えてきたね。未来の自分から一言だけ届くなら、何と聞こえてきそう？",
-    ),
-]
-
-FALLBACK_INTERVIEW_QUESTIONS = (
-    ("future-invention", "その未来に一つだけ発明を持ち込めるなら、どんなものを試してみたい？"),
-    ("future-action", "その未来へ着いた瞬間、まず何をしてみたい？"),
-    ("future-rule", "今とは違う不思議なルールがあるなら、どんな世界が面白そう？"),
-    ("future-souvenir", "未来から一つ持ち帰れるなら、何を選んでみたい？"),
-    ("future-crisis", "未来のあなたが大活躍するなら、どんなピンチを解決してほしい？"),
-    ("future-title", "その未来の一日を映画にするなら、どんなタイトルを付けたい？"),
+INTERVIEW_OPENING = (
+    "future-question",
+    "未来の自分に何か聞きたいことはありますか？",
 )
+
+
+RECOVERY_QUESTIONS: dict[InterviewTheme, str] = {
+    InterviewTheme.FUTURE_QUESTION: (
+        "今の話をもう少し聞かせてください。"
+        "その答えを未来の自分から聞けたら、どんな気持ちになれそう？"
+    ),
+    InterviewTheme.PRESENT_CONNECTION: (
+        "その未来につながりそうなことで、今つい時間を使ってしまうものはある？"
+    ),
+    InterviewTheme.CONCRETE_EPISODE: (
+        "今の話に関係することで、最近いちばん印象に残った出来事は何だった？"
+    ),
+    InterviewTheme.FUTURE_EXPANSION: (
+        "今の話が未来で大きく発展したら、どんな場面になっていたら面白そう？"
+    ),
+    InterviewTheme.FUTURE_MESSAGE: (
+        "その未来を経験した自分から、今の自分へ最初に何と言ってほしい？"
+    ),
+}
+
+
+NEXT_INTERVIEW_THEME: dict[InterviewTheme, InterviewTheme | None] = {
+    InterviewTheme.FUTURE_QUESTION: InterviewTheme.PRESENT_CONNECTION,
+    InterviewTheme.PRESENT_CONNECTION: InterviewTheme.CONCRETE_EPISODE,
+    InterviewTheme.CONCRETE_EPISODE: InterviewTheme.FUTURE_EXPANSION,
+    InterviewTheme.FUTURE_EXPANSION: InterviewTheme.FUTURE_MESSAGE,
+    InterviewTheme.FUTURE_MESSAGE: None,
+}
+
 
 DEBUG_IMAGE_EXTENSIONS = frozenset({".jpeg", ".jpg", ".png", ".webp"})
 DEBUG_AUDIO_EXTENSIONS = frozenset({".flac", ".m4a", ".mp3", ".ogg", ".wav"})
@@ -134,7 +145,7 @@ class SessionStore:
         session.state_changed_at = utc_now()
         session.conversation_started_at = utc_now()
         session.conversation_phase = ConversationPhase.SPEAKING
-        self._set_question(session, 0)
+        self._set_opening_question(session)
         await self.persist(session)
 
     async def mark_permissions_denied(self, session: SessionRecord) -> None:
@@ -159,8 +170,7 @@ class SessionStore:
         await self.persist(session)
 
     async def advance_question(self, session: SessionRecord) -> None:
-        next_index = session.interview_state.answer_count
-        self._set_question(session, next_index)
+        self._set_recovery_question(session)
         session.conversation_phase = ConversationPhase.SPEAKING
         await self.persist(session)
 
@@ -178,6 +188,11 @@ class SessionStore:
             dict.fromkeys([*state.asked_topics, *turn.asked_topics])
         )
         state.next_topics = turn.next_topics
+        state.current_theme = turn.current_theme
+        state.topic_depth = turn.topic_depth
+        state.interesting_detail = turn.interesting_detail
+        state.topic_complete = turn.topic_complete
+        state.next_anchor = turn.next_anchor
         state.visitor_char_count = session.visitor_char_count
         state.elapsed_seconds = seconds_since(session.conversation_started_at)
         state.should_end = False
@@ -191,21 +206,38 @@ class SessionStore:
         session.conversation_phase = ConversationPhase.SPEAKING
         await self.persist(session)
 
-    def _set_question(self, session: SessionRecord, index: int) -> None:
-        if index < len(INTERVIEW_QUESTIONS):
-            question_id, question_text = INTERVIEW_QUESTIONS[index]
+    def _set_opening_question(self, session: SessionRecord) -> None:
+        question_id, question_text = INTERVIEW_OPENING
+        state = session.interview_state
+        state.current_theme = InterviewTheme.FUTURE_QUESTION
+        state.topic_depth = 0
+        state.topic_complete = False
+        state.next_anchor = InterviewTheme.PRESENT_CONNECTION
+        state.current_question_id = question_id
+        state.current_question_text = question_text
+        state.next_utterance = question_text
+        state.asked_topics.append(InterviewTheme.FUTURE_QUESTION.value)
+        session.transcript.append(TranscriptEntry(speaker="ai", text=question_text))
+
+    def _set_recovery_question(self, session: SessionRecord) -> None:
+        state = session.interview_state
+        if state.topic_complete and state.next_anchor is not None:
+            state.current_theme = state.next_anchor
+            state.topic_depth = 1
         else:
-            fallback_index = (index - len(INTERVIEW_QUESTIONS)) % len(
-                FALLBACK_INTERVIEW_QUESTIONS
-            )
-            base_id, question_text = FALLBACK_INTERVIEW_QUESTIONS[fallback_index]
-            question_id = f"{base_id}-{index}"
-        session.interview_state.current_question_id = question_id
-        session.interview_state.current_question_text = question_text
-        session.interview_state.next_utterance = question_text
-        if question_id not in session.interview_state.asked_topics:
-            session.interview_state.asked_topics.append(question_id)
-            session.transcript.append(TranscriptEntry(speaker="ai", text=question_text))
+            state.topic_depth += 1
+        state.topic_complete = False
+        state.next_anchor = NEXT_INTERVIEW_THEME[state.current_theme]
+        question_text = RECOVERY_QUESTIONS[state.current_theme]
+        question_id = (
+            f"recovery-{state.current_theme.value}-{state.answer_count}"
+        )
+        state.current_question_id = question_id
+        state.current_question_text = question_text
+        state.next_utterance = question_text
+        if state.current_theme.value not in state.asked_topics:
+            state.asked_topics.append(state.current_theme.value)
+        session.transcript.append(TranscriptEntry(speaker="ai", text=question_text))
 
     async def add_transcript(
         self,

@@ -39,20 +39,60 @@ SUPPORTED_ROLES = {
 }
 
 SCRIPT_SYSTEM_PROMPT = """\
-あなたは九州工業大学のオープンキャンパス向けSF短編映像の脚本設計者です。
+あなたは九州工業大学のオープンキャンパス向けSF短編映像の設計者です。
 入力された本人の会話を尊重し、本人を否定・診断・評価せず、未来から届く20秒のフィクション動画を設計します。
 
 共通ルール:
-- 必ず自然な日本語で回答する
+- 必ず自然で具体的な日本語で回答する
 - 今回質問された一項目だけに答える
 - 見出し、箇条書き、引用符、JSON、コードブロック、補足説明を付けない
-- 本人の発話から得た具体的な興味や価値観を自然に使う
-- 将来の予言や保証ではなく、明確なフィクションとして描く
+- 本人の発話に出た具体的な言葉、行動、出来事を優先して使う
+- 抽象的な美辞麗句より、誰が何をしているかが分かる内容にする
+- 将来の予言や保証として断定しない
 - 容姿、性格、進路、家族、健康、経済状況を否定または侮辱しない
 - 実在人物名、企業名、既存作品名、既存キャラクター名を出さない
-- 未来の本人は前向きで、現在の本人へ命令や脅迫をしない
+- 未来の本人は現在の本人へ命令、脅迫、説教をしない
 - 思考過程を出さず、完成した回答本文だけを返す
+
+ナレーションを求められた場合:
+- 文学作品、映画予告、広告コピーではなく、未来の本人がスマートフォンで近況を話すような口調にする
+- 2〜4個の短い文で、具体的な近況、インタビューとのつながり、今の本人への一言を伝える
+- 比喩、ポエム調、壮大な励まし、抽象的な人生訓を使わない
+- 「未来への扉」「新しい景色」「可能性を信じて」「物語は始まった」「一歩ずつ進んで」のような定型句を使わない
+- フィクションであることの注意書きは画面側に表示するため、話し言葉の中へ入れない
 """
+
+
+NARRATION_STYLE_GUIDANCE = """\
+未来の本人が、現在の本人へ送る短いビデオメッセージとして書いてください。
+2〜4個の短い文にし、インタビューまたはエピソードから具体的な名詞や行動を最低一つ使ってください。
+文学的な比喩、詩的な景色、映画予告のような大げさな言葉、一般論だけの応援、人生訓は禁止です。
+「未来への扉」「新しい景色」「輝く」「羽ばたく」「物語」「可能性を信じて」「一歩ずつ」は使わないでください。
+本人がカメラへ普通に近況を話す口調にし、フィクションの注意書きは台詞へ入れないでください。
+悪い例: あの日の小さな好奇心が未来への扉を開き、新しい景色が君を待っている。
+良い例: 今は軌道農園で、仲間と野菜の育て方を試しています。学園祭で展示を作った経験が、意外と役に立っているよ。
+"""
+
+
+POETIC_NARRATION_MARKERS = (
+    "未来への扉",
+    "新しい扉",
+    "新たな扉",
+    "新しい景色",
+    "どんな景色",
+    "輝く未来",
+    "羽ばた",
+    "物語は",
+    "物語が",
+    "可能性を信じ",
+    "可能性の一つ",
+    "一歩ずつ",
+    "道を照ら",
+    "胸に刻",
+    "好奇心を抱え",
+    "未来で会える日",
+)
+
 
 SAFETY_SYSTEM_PROMPT = """\
 あなたは公開デモ用SF動画の安全審査AIです。
@@ -426,25 +466,29 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
         future_world = await ask(
             "future_world",
             "未来の世界",
-            "エピソードと本人の会話を結び付け、未来の世界を自然な日本語50〜100文字で描写してください。",
+            "エピソードと本人の会話を結び付け、場所、使われている技術、人々の日常が分かる未来の世界を日本語50〜100文字で具体的に書いてください。比喩は使わないでください。",
             1,
         )
         future_person = await ask(
             "future_person",
             "未来の本人",
-            "その世界で未来の本人が何をしているか、本人の興味を生かして自然な日本語50〜100文字で描写してください。",
+            "その世界で未来の本人が、どこで、誰と、何をしているかを、本人の発話に出た内容を使って日本語50〜100文字で具体的に書いてください。",
             2,
         )
         positive_interpretation = await ask(
             "positive_interpretation",
             "前向きな意味付け",
-            "この未来が現在の本人にとって前向きで意外な可能性になる理由を、日本語40〜80文字で書いてください。",
+            "この未来設定が、インタビューで本人が話したどの言葉、行動、経験につながっているかを、日本語40〜80文字で具体的に説明してください。",
             3,
         )
         narration_script = await ask(
             "narration_script",
             "未来からのメッセージ",
-            "未来の本人が現在の本人へ直接語る、自然な日本語のナレーションを80〜110文字で書いてください。フィクションだと伝わり、命令口調にならないようにしてください。",
+            (
+                "未来の本人が現在の本人へ直接語る、日本語80〜110文字のナレーションを書いてください。"
+                "命令口調にせず、今回までに決めた具体的な内容を使ってください。\n"
+                f"{NARRATION_STYLE_GUIDANCE}"
+            ),
             4,
             max_new_tokens=int(
                 request.model.parameters.get("narration_max_new_tokens", 180)
@@ -582,22 +626,28 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
     ) -> str:
         value = self._clean_answer(narration)
         retry_count = int(request.model.parameters.get("text_revision_retry_count", 1))
-        for retry in range(retry_count):
-            if 80 <= len(value) <= 110:
+        for retry in range(retry_count + 1):
+            reasons = self._narration_revision_reasons(value)
+            if not reasons:
                 return value
+            if retry >= retry_count:
+                break
             await self._emit(
                 progress,
                 request,
                 0.335,
                 "script.narration_revision",
-                "メッセージの長さを整えています",
-                f"現在 {len(value)}文字 / 目標 80〜110文字 / 修正 {retry + 1}",
+                "メッセージの話し方を整えています",
+                f"{', '.join(reasons)} / 修正 {retry + 1}",
             )
             prompt = (
                 f"入力情報:\n{base_context}\n\n"
                 f"決定済み内容:\n{json.dumps(answers, ensure_ascii=False)}\n\n"
                 f"現在の文章:\n{value}\n\n"
-                "意味を保ち、未来の本人が現在の本人へ直接語る自然な日本語80〜110文字へ書き直してください。回答本文だけを書いてください。"
+                f"修正理由: {', '.join(reasons)}\n"
+                "内容の事実関係を保ち、日本語80〜110文字で全文を書き直してください。\n"
+                f"{NARRATION_STYLE_GUIDANCE}\n"
+                "回答本文だけを書いてください。"
             )
             raw = await asyncio.to_thread(
                 self._generate_text,
@@ -609,6 +659,20 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
             )
             value = self._clean_answer(raw)
         return self._normalize_narration(value)
+
+    @staticmethod
+    def _narration_revision_reasons(value: str) -> list[str]:
+        reasons: list[str] = []
+        if not 80 <= len(value) <= 110:
+            reasons.append(f"文字数が{len(value)}文字")
+        markers = [
+            marker for marker in POETIC_NARRATION_MARKERS if marker in value
+        ]
+        if markers:
+            reasons.append("詩的な定型句を含む")
+        if "これは予言では" in value or "フィクション" in value:
+            reasons.append("台詞内に注意書きを含む")
+        return reasons
 
     async def _run_safety_review(
         self,
@@ -659,8 +723,10 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
             )
             rewrite_prompt = (
                 "次のナレーションを、本人を尊重した公開デモ向けの日本語80〜110文字へ書き直してください。"
-                "実在人物名・作品名・侮辱・恐怖・将来の断定を除き、回答本文だけを書いてください。\n"
-                f"{script.narration_script}"
+                "実在人物名・作品名・侮辱・恐怖・将来の断定を除いてください。\n"
+                f"{NARRATION_STYLE_GUIDANCE}\n"
+                "回答本文だけを書いてください。\n"
+                f"現在のナレーション: {script.narration_script}"
             )
             raw_rewrite = await asyncio.to_thread(
                 self._generate_text,
@@ -866,11 +932,14 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
     def _normalize_narration(cls, value: str) -> str:
         text = cls._clean_answer(value)
         if not text:
-            text = "未来の私は、あなたが今大切にしている好奇心を抱えたまま、新しい世界で毎日を楽しんでいます。"
+            text = (
+                "未来から連絡しています。今は仲間と新しいことを試しながら、"
+                "忙しいけれど元気に過ごしています。"
+            )
         supplements = [
-            "これは予言ではなく、いくつもある未来の可能性の一つです。",
-            "今の好奇心を大切にしながら、あなたらしい選択を楽しんでください。",
-            "ここから先でどんな景色に出会えるか、未来の私は楽しみにしています。",
+            "こっちは思っていたより忙しいけど、毎日けっこう楽しくやっています。",
+            "今話してくれたことも、こちらで意外な形で役に立っています。",
+            "詳しいことはまだ内緒だけど、今のところ元気に過ごしています。",
         ]
         for sentence in supplements:
             if len(text) >= 80:
@@ -889,7 +958,7 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
             else:
                 text = text[:109].rstrip("、。！？!? ") + "。"
         if len(text) < 80:
-            text += "未来で会える日を楽しみにしています。"
+            text += "また続きが話せるようになったら、こちらの近況も伝えます。"
         if len(text) > 110:
             text = text[:109].rstrip("、。！？!? ") + "。"
         return text
