@@ -530,14 +530,14 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
         image_prompt = await ask(
             "image_prompt",
             "画像生成指示",
-            "Write one English image-generation prompt. Preserve the exact identity and facial features of the reference person, use a front-facing chest-up composition, and include the decided clothing, background, emotion, and future setting. Do not add a heading.",
+            "Write one English image-generation prompt. Preserve the exact identity and facial features of the reference person. Use a front-facing medium or waist-up composition with enough space for shoulders, arms, and at least one natural hand gesture. Include the decided clothing, background, emotion, and future setting. Do not add a heading.",
             9,
             max_new_tokens=260,
         )
         video_prompt = await ask(
             "video_prompt",
             "動画生成指示",
-            "Write one English image-to-video prompt for a single continuous talking-head shot. The same person speaks naturally to the camera with natural blinking, subtle head movement and small gestures; the camera stays nearly fixed. Do not add a heading.",
+            "Write one English image-to-video prompt for a continuous message-video shot. Preserve the person's identity and background while creating clearly visible but natural motion: blinking, facial expression changes, small head turns, shoulder and upper-body movement, and one restrained hand gesture when visible. Add a very gentle camera push-in or lateral drift. Explicitly avoid a frozen body or mouth-only animation. Do not add a heading.",
             10,
             max_new_tokens=240,
         )
@@ -564,7 +564,10 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
             visual_concept=visual_concept,
             clothing=clothing,
             background=background,
-            camera="正面寄りの胸上構図。カメラは目線の高さで、ほぼ固定する。",
+            camera=(
+                "正面寄りの腰上または胸上構図。目線の高さを保ち、"
+                "ごく緩やかな寄りまたは横移動を加える。"
+            ),
             emotion=emotion,
             narration_script=narration_script,
             shot_plan=[
@@ -572,8 +575,11 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
                     shot_id="future-message",
                     start_seconds=0,
                     end_seconds=float(design_input.target_video_seconds),
-                    composition="正面寄りの胸上トーキングヘッド",
-                    action="カメラへ自然に語り、瞬きと小さな身振りを加える",
+                    composition="正面寄りの腰上または胸上メッセージ映像",
+                    action=(
+                        "カメラへ自然に語り、表情、視線、首、肩、上半身を動かし、"
+                        "画角に入る場合は手振りを一度加える"
+                    ),
                     narration=narration_script,
                     transition="none",
                 )
@@ -581,7 +587,8 @@ class TransformersGenerationLlmAdapter(WorkerAdapter):
             image_prompt=image_prompt,
             negative_prompt=(
                 "identity change, distorted face, deformed hands, extra fingers, "
-                "duplicate person, text, subtitles, logo, watermark, low quality"
+                "duplicate person, frozen pose, static body, mouth-only motion, "
+                "text, subtitles, logo, watermark, low quality"
             ),
             video_prompt=video_prompt,
             voice_instruction=voice_instruction,

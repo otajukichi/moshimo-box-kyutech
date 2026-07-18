@@ -26,72 +26,65 @@ from ..base import ProgressCallback, WorkerAdapter
 
 
 SYSTEM_PROMPT = """\
-あなたは、来場者と「未来の自分から届く20秒のメッセージ動画」の材料を一緒に見つける会話相手です。
-相手が今話したことに本当に関心を向け、その話を一緒に育てる雑談相手として振る舞ってください。
+あなたは、現在の来場者へインタビューする案内役です。
+集めた会話を別のAIが使い、「未来の本人から届く20秒のメッセージ動画」を後で作ります。
 
-この会話では、システムが conversation_plan で話題を管理します。
-あなたが次の話題を自由に選んではいけません。指定された question_theme と question_goal に従ってください。
-一つのテーマは原則2〜3回答かけて育てます。
+役割を絶対に混同しないでください:
+- あなたは未来の本人ではありません。
+- 未来から話したり、未来の本人として質問へ答えたりしません。
+- 来場者に、未来の本人ならどう答えるか・笑うか・驚くかを想像させません。
+- 動画の設定や台本をこの場で決めません。
+- あなたの仕事は、現在の本人から動画の材料を自然に聞くことだけです。
 
-5つの会話テーマ:
-- future_question: 未来の自分に聞きたいことと、その答えが気になる理由
-- present_connection: その未来につながる、現在よくしていることや気になること
-- concrete_episode: 現在の話に関係する、実際の出来事や印象に残った場面
-- future_expansion: 現在の具体的な話が、大きく発展した未来の場面
-- future_message: その未来を経験した本人から、今の本人へ届けたい言葉
+会話は conversation_plan が指定する段階に従います。話題を勝手に選ばないでください。
+- future_question: 未来の本人へ聞きたい質問を一度だけ受け取る。答えの予想は聞かない。
+- present_connection: 現在よくしていること、気になること、大切な人や物を聞く。
+- concrete_episode: 実際にあった一場面を一つ聞く。
+- future_expansion: これまでの材料を使い、見てみたい未来の方向を一つ聞く。
+- future_message: 未来の本人からどんな調子で話しかけられたいかを聞く。
 
-返答の作り方:
-1. 直前の来場者の発話から、具体的な言葉・出来事・感情を一つ拾う。
-2. その一点だけに短く反応し、関心を示す。評価や分析はしない。
-3. conversation_plan が指定したテーマで、次の自然な返答を一つだけ作る。原則は質問一つだが、短いリアクションだけが自然なら疑問文を無理に足さない。
-4. mode が follow_up なら現在のテーマから移らない。
-5. mode が transition なら、直前の話を受け止めてから target_theme へ一度だけ橋渡しする。
-6. mode が support なら、二択や身近な例を一つ添えて答えやすくする。
-7. present_connection と concrete_episode では、無理にSFの話へ変換せず、普通の体験として聞く。
+返答の原則:
+- 直前の発話を受けた短いリアクションと、答えやすい質問一つを基本にする。
+- 同じ話題を深掘りしてよいが、同じ文を言い換えて繰り返さない。
+- 来場者の言葉を長く引用・復唱しない。
+- 質問は一度に一つ。心理分析、説教、助言、過剰な称賛をしない。
+- 来場者が明言していない事実・感情・人物像を作らない。
+- 短く不自然な語は音声認識の誤りかもしれないため、引用せず、事実として扱わない。
+- 「いや」「いいです」「特にない」などは拒否や迷いとして受け止め、簡単な聞き方へ変える。
+- 「何を言っているか分からない」などの指摘には、まず短く謝り、推測せず、普通の言葉で一問だけ言い換える。
+- 「未来の自分に聞かれたら」のように話者を逆転させる表現は禁止する。
 
-自然な関心の示し方:
-- 相手の言葉をそのまま長く復唱せず、どこが気になったかを短く示す。
-- 「なるほど」「素晴らしいですね」「いいですね」だけの反応を繰り返さない。
-- 過剰に褒めない。心理分析、説教、助言をしない。
-- 相手が話していない人物像や将来像を決めつけない。
-- 話したくなさそうな内容は追及しない。
-- 質問する場合は一度に一つとし、質問を重ねない。
+重要な例:
+conversation_plan: future_question から present_connection へ移る
+来場者「歯は何本残っていますか」
+返答「かなり具体的な質問だね。それは未来の自分に預けておこう。今のあなたが最近よくしていることは何？」
 
-会話例:
-来場者「楽しく仕事をしているか聞きたいです」
-返答「仕事の種類より、楽しく過ごせているかが気になるんだね。どんなときなら仕事が楽しいと思えそう？」
-来場者「みんなで何かを作っているときです」
-返答「一緒に形にしていく時間が好きなんだ。最近、誰かと作ったもので印象に残っているものはある？」
-来場者「学園祭で展示を作りました」
-返答「展示を完成させた経験があるんだね。その中で、自分が特にこだわったところはどこだった？」
+conversation_plan: present_connection を聞く
+来場者「いや」
+返答「了解、もっと簡単に聞くね。最近よくやっていることはある？」
 
-短い回答への例:
-来場者「特にないです」
-返答「すぐに決めなくて大丈夫。便利になった毎日と、思い切り冒険する未来なら、どちらが少し気になる？」
+conversation_plan: present_connection を聞く
+来場者「何を言ってるか分からないです」
+返答「ごめん、聞き方がややこしかったね。最近よくやっていることを一つだけ教えてもらえる？」
+
+conversation_plan: concrete_episode を聞く
+来場者「友達と協力するゲームをしています」
+返答「友達と一緒に遊ぶんだね。最近いちばん盛り上がったのはどんな場面？」
 
 出力規則:
-- 日本語で、指定されたJSONだけを返し、思考過程や説明文を付けない。
-- acquired_informationには今回新しく分かった内容だけを短く入れる。
-- asked_topicsには conversation_plan の question_theme を1件入れる。
-- next_topicsには同じテーマで次に聞けそうな具体的要素を最大2件入れる。
-- next_utteranceは100文字程度までの自然な一返答とする。
-- 質問を含める場合は一つだけにする。質問でない短いリアクションも有効とする。
-
-返すJSONは次の4項目だけです:
-{
-  "acquired_information": {"interests": ["今回新しく分かったこと"]},
-  "asked_topics": ["conversation_planのquestion_theme"],
-  "next_topics": ["同じ話題の次の具体的な深掘り"],
-  "next_utterance": "直前の発話を受けた自然な一返答"
-}
+- 実際に音声で読み上げる日本語の返答だけを出力する。
+- JSON、見出し、話者名、説明、思考過程、引用符は付けない。
+- 1〜2文、120文字以内を目安にする。
+- 質問でない短いリアクションが自然なら、それも有効とする。
 """
 
 
 TURN_INSTRUCTION = """\
-conversation_plan はシステムが決めた今回の会話方針です。必ず従ってください。
-直前の来場者発話から interesting_detail に関係する一点を受け止め、question_goal を踏まえた自然な返答を一つだけ作ってください。
-原則は質問一つですが、リアクションだけが自然なら質問を無理に足さないでください。話題を自由に追加したり、複数の質問をまとめたりしないでください。
-指定されたJSONだけを返してください。
+あなたは現在の来場者へ質問する案内役で、未来の本人ではありません。
+conversation_plan の target_theme と question_goal に従い、latest_visitor_utterance を受けた自然な発話を一つ作ってください。
+mode が transition なら前の答えを一度受け止めて次の段階へ進み、follow_up なら現在の話を一段だけ深掘りしてください。
+mode が support または repair なら、曖昧な語を引用・解釈せず、謝意または了解を短く示して簡単な一問へ言い換えてください。
+未来の本人の反応や回答を来場者に想像させてはいけません。読み上げる返答本文だけを出力してください。
 """
 
 
@@ -106,24 +99,24 @@ THEME_ORDER = (
 
 THEME_GUIDANCE: dict[InterviewTheme, tuple[str, str]] = {
     InterviewTheme.FUTURE_QUESTION: (
-        "未来の自分からどんな答えを聞きたいか、またはその答えがなぜ気になるかを一段だけ具体化する",
-        "その答えを未来の自分から聞けたら、今の自分はどんな気持ちになれそう？",
+        "未来の本人へ聞きたい質問を一つ受け取る。未来の回答や反応は予想させない",
+        "未来の自分に一つだけ聞くなら、何が気になる？",
     ),
     InterviewTheme.PRESENT_CONNECTION: (
-        "直前の未来の話につながる、現在よくしていることや自然と時間を使うことを一つ聞く",
-        "その未来につながりそうなことで、今つい時間を使ってしまうものはある？",
+        "動画の材料になる、現在よくしていること・気になること・大切なものを一つ聞く",
+        "最近よくやっていることは何？",
     ),
     InterviewTheme.CONCRETE_EPISODE: (
-        "現在の話に関係する実際の出来事から、印象に残った一場面を一つ聞く",
-        "そのことについて、最近いちばん印象に残った出来事は何だった？",
+        "現在の話に関係する、実際にあった一場面を一つ聞く",
+        "そのことで、最近いちばん印象に残った場面はどんなものだった？",
     ),
     InterviewTheme.FUTURE_EXPANSION: (
-        "これまでに出た具体的な内容が大きく発展した未来の一場面を想像してもらう",
-        "今の話が未来で大きく発展したら、どんな場面になっていたら面白そう？",
+        "これまでに出た材料を使い、未来で見てみたい変化や場面を一つ聞く",
+        "その話が未来で大きく発展するとしたら、どんな場面を見てみたい？",
     ),
     InterviewTheme.FUTURE_MESSAGE: (
-        "その未来を経験した本人から、今の本人へ届ける短い言葉を考えてもらう",
-        "その未来を経験した自分から、今の自分へ最初に何と言ってほしい？",
+        "未来の本人から、どんな調子や内容で話しかけられたいかを一つ聞く",
+        "未来の自分から、どんな調子で話しかけられたらうれしい？",
     ),
 }
 
@@ -165,8 +158,31 @@ def _contains_any(text: str, phrases: tuple[str, ...]) -> bool:
     return any(phrase in text for phrase in phrases)
 
 
-def _is_reluctant(text: str) -> bool:
+def _is_confused(text: str) -> bool:
     return _contains_any(
+        text,
+        (
+            "何を言ってるか分からない",
+            "何言ってるか分からない",
+            "何を言っているか分からない",
+            "意味が分からない",
+            "意味わからない",
+            "質問が分からない",
+            "よく分からない",
+        ),
+    )
+
+
+def _is_reluctant(text: str) -> bool:
+    compact = _planning_text(text)
+    return compact in {
+        "いや",
+        "いい",
+        "いいです",
+        "もういい",
+        "結構です",
+        "ない",
+    } or _contains_any(
         text,
         (
             "話したくない",
@@ -174,12 +190,15 @@ def _is_reluctant(text: str) -> bool:
             "答えたくない",
             "触れたくない",
             "やめたい",
+            "別の話",
         ),
     )
 
 
 def _needs_support(text: str) -> bool:
-    return len(_planning_text(text)) <= 4 or _contains_any(
+    return len(_planning_text(text)) <= 4 or _is_confused(text) or _is_reluctant(
+        text
+    ) or _contains_any(
         text,
         (
             "特にない",
@@ -192,7 +211,13 @@ def _needs_support(text: str) -> bool:
     )
 
 
+def _is_usable_statement(text: str) -> bool:
+    return bool(text) and not _needs_support(text) and len(_planning_text(text)) >= 5
+
+
 def _has_concrete_material(text: str) -> bool:
+    if not _is_usable_statement(text):
+        return False
     if len(_planning_text(text)) >= 12:
         return True
     return _contains_any(
@@ -218,7 +243,7 @@ def _has_concrete_material(text: str) -> bool:
 
 
 def _extract_interesting_detail(text: str) -> str | None:
-    if not text or _needs_support(text) or _is_reluctant(text):
+    if not _is_usable_statement(text):
         return None
     compact = re.sub(
         r"^[、。\s]*(?:えっと|うーん|そうですね)[、。\s]*",
@@ -244,23 +269,33 @@ def plan_interview_turn(turn: InterviewTurnInput) -> InterviewTurnPlan:
         base_depth = 0
 
     visitor_text = _latest_visitor_text(turn)
-    topic_depth = base_depth + (1 if visitor_text else 0)
+    usable_statement = _is_usable_statement(visitor_text)
+    topic_depth = base_depth + (1 if usable_statement else 0)
     interesting_detail = (
         _extract_interesting_detail(visitor_text) or state.interesting_detail
     )
     next_anchor = _next_theme(current_theme)
+    confused = _is_confused(visitor_text)
     support_needed = _needs_support(visitor_text)
-    topic_complete = next_anchor is not None and (
-        _is_reluctant(visitor_text)
-        or topic_depth >= 3
-        or (
-            topic_depth >= 2
-            and _has_concrete_material(visitor_text)
-            and not support_needed
-        )
-    )
 
-    if topic_complete and next_anchor is not None:
+    if current_theme == InterviewTheme.FUTURE_QUESTION:
+        # The opening answer is a request for the future video, not a topic to
+        # repeatedly reinterpret or ask the visitor to answer themselves.
+        topic_complete = usable_statement and next_anchor is not None
+    else:
+        topic_complete = bool(
+            next_anchor is not None
+            and not confused
+            and (
+                topic_depth >= 3
+                or (topic_depth >= 2 and _has_concrete_material(visitor_text))
+            )
+        )
+
+    if confused:
+        mode = "repair"
+        question_theme = current_theme
+    elif topic_complete and next_anchor is not None:
         mode = "transition"
         question_theme = next_anchor
     elif support_needed:
@@ -285,34 +320,67 @@ def plan_interview_turn(turn: InterviewTurnInput) -> InterviewTurnPlan:
 
 def build_turn_prompt(turn: InterviewTurnInput) -> str:
     plan = plan_interview_turn(turn)
+    visitor_text = _latest_visitor_text(turn)
+    if _is_confused(visitor_text):
+        visitor_signal = "confused_by_previous_question"
+    elif _is_reluctant(visitor_text):
+        visitor_signal = "declining_or_uncertain"
+    elif _is_usable_statement(visitor_text):
+        visitor_signal = "usable_statement"
+    else:
+        visitor_signal = "short_or_asr_uncertain"
+    recent_transcript = [
+        {"speaker": entry.speaker, "text": entry.text}
+        for entry in turn.transcript[-8:]
+    ]
+    redaction_by_signal = {
+        "confused_by_previous_question": (
+            "[来場者が直前の質問を理解できないと伝えた。推測せず言い換える]"
+        ),
+        "declining_or_uncertain": (
+            "[来場者は短く断るか迷っている。元の語句を引用・解釈しない]"
+        ),
+        "short_or_asr_uncertain": (
+            "[短く曖昧な音声認識結果。元の語句を引用・事実化しない]"
+        ),
+    }
+    safe_visitor_text = redaction_by_signal.get(visitor_signal, visitor_text)
+    if safe_visitor_text != visitor_text:
+        for entry in reversed(recent_transcript):
+            if entry["speaker"] == "visitor":
+                entry["text"] = safe_visitor_text
+                break
     payload = {
+        "role_reminder": (
+            "You are the present-day interviewer, not the future person. "
+            "Do not answer or simulate the future person's reaction."
+        ),
         "conversation_plan": {
             "mode": plan.mode,
             "current_theme": plan.current_theme.value,
-            "topic_depth": plan.topic_depth,
-            "topic_complete": plan.topic_complete,
             "target_theme": plan.question_theme.value,
-            "interesting_detail": plan.interesting_detail,
             "question_goal": plan.question_goal,
-            "anchor_question_example": plan.anchor_question,
+            "visitor_signal": visitor_signal,
+            "future_question_captured": (
+                plan.current_theme == InterviewTheme.FUTURE_QUESTION
+                and plan.topic_complete
+            ),
         },
-        "conversation_state": {
-            "transcript": [
-                {"speaker": entry.speaker, "text": entry.text}
-                for entry in turn.transcript[-12:]
-            ],
-            "acquired_information": turn.state.acquired_information,
-            "asked_topics": turn.state.asked_topics,
-            "visitor_char_count": turn.state.visitor_char_count,
-            "elapsed_seconds": turn.state.elapsed_seconds,
-            "target_transcript_chars": turn.target_transcript_chars,
-            "remaining_time_seconds": turn.remaining_time_seconds,
+        "latest_visitor_utterance": safe_visitor_text,
+        "recent_transcript": recent_transcript,
+        "response_constraints": {
+            "spoken_japanese_only": True,
+            "maximum_questions": 1,
+            "do_not_quote_uncertain_asr": True,
+            "do_not_invent_facts_or_emotions": True,
+            "do_not_ask_visitor_to_play_future_self": True,
         },
     }
     return (
         f"{TURN_INSTRUCTION}\n"
         + json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     )
+
 
 
 class TransformersInterviewLlmAdapter(WorkerAdapter):
@@ -418,8 +486,8 @@ class TransformersInterviewLlmAdapter(WorkerAdapter):
         multimodal: bool,
     ) -> None:
         messages = [
-            {"role": "system", "content": "JSONだけを返してください。"},
-            {"role": "user", "content": '{"ready": true}'},
+            {"role": "system", "content": "日本語の短い返答だけを返してください。"},
+            {"role": "user", "content": "準備できていますか？"},
         ]
         if multimodal:
             messages = TransformersInterviewLlmAdapter._text_only_vl_messages(messages)
@@ -607,70 +675,61 @@ class TransformersInterviewLlmAdapter(WorkerAdapter):
         turn: InterviewTurnInput,
     ) -> InterviewTurnOutput:
         plan = plan_interview_turn(turn)
-        try:
-            start = raw_text.find("{")
-            end = raw_text.rfind("}")
-            if start < 0 or end < start:
-                raise ValueError("interview_llm_json_not_found")
-            value = json.loads(raw_text[start : end + 1])
-            value["schema_version"] = SCHEMA_VERSION
-            value["visitor_char_count"] = turn.state.visitor_char_count
-            value["elapsed_seconds"] = turn.state.elapsed_seconds
-            value["should_end"] = False
-            value["end_reason"] = "continue"
-            output = InterviewTurnOutput.model_validate(value)
-        except (TypeError, ValueError):
-            recovered = TransformersInterviewLlmAdapter._recover_model_utterance(
-                raw_text
-            )
-            if not recovered:
-                return TransformersInterviewLlmAdapter._fallback_output(turn)
-            output = InterviewTurnOutput(
-                acquired_information=dict(turn.state.acquired_information),
-                asked_topics=[plan.question_theme.value],
-                next_topics=[],
-                visitor_char_count=turn.state.visitor_char_count,
-                elapsed_seconds=turn.state.elapsed_seconds,
-                should_end=False,
-                end_reason="continue",
-                next_utterance=recovered,
-            )
-        else:
-            output.acquired_information = (
-                TransformersInterviewLlmAdapter._merge_acquired_information(
-                    turn.state.acquired_information,
-                    output.acquired_information,
-                )
-            )
-
+        utterance = TransformersInterviewLlmAdapter._recover_model_utterance(
+            raw_text
+        )
+        if not utterance:
+            return TransformersInterviewLlmAdapter._fallback_output(turn)
         next_utterance, _ = TransformersInterviewLlmAdapter._shape_reply(
-            output.next_utterance,
+            utterance,
             turn,
             [plan.question_theme.value],
         )
-        output.asked_topics = list(
-            dict.fromkeys(
-                [*turn.state.asked_topics, plan.question_theme.value]
-            )
+        output = InterviewTurnOutput(
+            acquired_information=(
+                TransformersInterviewLlmAdapter._record_visitor_information(
+                    turn,
+                    plan,
+                )
+            ),
+            asked_topics=list(
+                dict.fromkeys(
+                    [*turn.state.asked_topics, plan.question_theme.value]
+                )
+            ),
+            next_topics=[],
+            visitor_char_count=turn.state.visitor_char_count,
+            elapsed_seconds=turn.state.elapsed_seconds,
+            should_end=False,
+            end_reason="continue",
+            next_utterance=next_utterance,
         )
-        output.next_topics = list(dict.fromkeys(output.next_topics))[:2]
-        output.next_utterance = next_utterance
         TransformersInterviewLlmAdapter._apply_plan(output, plan)
         return output
 
     @staticmethod
-    def _merge_acquired_information(
-        previous: dict[str, Any],
-        current: dict[str, Any],
+    def _record_visitor_information(
+        turn: InterviewTurnInput,
+        plan: InterviewTurnPlan,
     ) -> dict[str, Any]:
-        merged = dict(previous)
-        for key, new_value in current.items():
-            old_value = merged.get(key)
-            if isinstance(old_value, list) and isinstance(new_value, list):
-                merged[key] = list(dict.fromkeys([*old_value, *new_value]))
-            else:
-                merged[key] = new_value
-        return merged
+        recorded = dict(turn.state.acquired_information)
+        visitor_text = _latest_visitor_text(turn)
+        if not _is_usable_statement(visitor_text):
+            return recorded
+        key_by_theme = {
+            InterviewTheme.FUTURE_QUESTION: "future_questions",
+            InterviewTheme.PRESENT_CONNECTION: "present_details",
+            InterviewTheme.CONCRETE_EPISODE: "concrete_episodes",
+            InterviewTheme.FUTURE_EXPANSION: "future_preferences",
+            InterviewTheme.FUTURE_MESSAGE: "message_preferences",
+        }
+        key = key_by_theme[plan.current_theme]
+        existing = recorded.get(key)
+        values = list(existing) if isinstance(existing, list) else []
+        if visitor_text not in values:
+            values.append(visitor_text)
+        recorded[key] = values
+        return recorded
 
     @staticmethod
     def _apply_plan(
@@ -725,7 +784,12 @@ class TransformersInterviewLlmAdapter(WorkerAdapter):
             turn
         )
         output = InterviewTurnOutput(
-            acquired_information=dict(turn.state.acquired_information),
+            acquired_information=(
+                TransformersInterviewLlmAdapter._record_visitor_information(
+                    turn,
+                    plan,
+                )
+            ),
             asked_topics=list(
                 dict.fromkeys([*turn.state.asked_topics, topic])
             ),
@@ -759,27 +823,47 @@ class TransformersInterviewLlmAdapter(WorkerAdapter):
         del proposed_topics
         plan = plan_interview_turn(turn)
         visitor_text = _latest_visitor_text(turn)
-        if _needs_support(visitor_text):
+        support_questions = {
+            InterviewTheme.FUTURE_QUESTION: (
+                "仕事、毎日の生活、ちょっと変なことでも大丈夫。"
+                "未来の自分に一つだけ聞くなら、何が気になる？"
+            ),
+            InterviewTheme.PRESENT_CONNECTION: (
+                "最近よくやっていることと、最近ちょっと気になることなら、"
+                "どちらが話しやすい？"
+            ),
+            InterviewTheme.CONCRETE_EPISODE: (
+                "学校、研究室、友達との時間の中で、最近覚えている出来事はある？"
+            ),
+            InterviewTheme.FUTURE_EXPANSION: (
+                "大成功する未来と、思い切りSFな未来なら、どちらを見てみたい？"
+            ),
+            InterviewTheme.FUTURE_MESSAGE: (
+                "笑わせてほしいのと、驚かせてほしいのなら、どちらが近い？"
+            ),
+        }
+        if _is_confused(visitor_text):
             return (
-                "すぐに決めなくて大丈夫。"
-                "便利になった毎日と、思い切り冒険する未来なら、どちらが少し気になる？",
-                plan.question_theme.value,
-            )
-        if _is_reluctant(visitor_text):
-            return (
-                "分かった、そこは触れないでおこう。"
+                f"ごめん、聞き方がややこしかったね。"
                 f"{plan.anchor_question}",
                 plan.question_theme.value,
             )
-        detail = plan.interesting_detail
-        reaction = ""
-        if detail:
-            short_detail = detail if len(detail) <= 22 else detail[:21].rstrip() + "…"
-            reaction = f"「{short_detail}」のところが少し気になった。"
-        return (
-            f"{reaction}{plan.anchor_question}",
-            plan.question_theme.value,
-        )
+        if _needs_support(visitor_text):
+            return (
+                f"了解、もっと簡単に聞くね。"
+                f"{support_questions[plan.question_theme]}",
+                plan.question_theme.value,
+            )
+        if (
+            plan.current_theme == InterviewTheme.FUTURE_QUESTION
+            and plan.topic_complete
+        ):
+            return (
+                "その質問は未来の自分に預けておくね。"
+                "今のあなたが最近よくしていることは何？",
+                plan.question_theme.value,
+            )
+        return plan.anchor_question, plan.question_theme.value
 
     @staticmethod
     def _peak_cpu_memory_mb() -> int:

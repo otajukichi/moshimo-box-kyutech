@@ -154,8 +154,13 @@ def test_script_design_is_assembled_from_plain_stage_answers(
     assert len(calls) == 11
     assert "文学的な比喩" in calls[3]
     assert "具体的な名詞や行動" in calls[3]
+    assert "at least one natural hand gesture" in calls[8]
+    assert "avoid a frozen body or mouth-only animation" in calls[9]
     assert isinstance(output.future_world, str)
     assert 80 <= len(output.narration_script) <= 110
+    assert "緩やかな" in output.camera
+    assert "上半身" in output.shot_plan[0].action
+    assert "frozen pose" in output.negative_prompt
     assert len(output.shot_plan) == 1
     assert metadata["staged_field_count"] == 11
     assert any(event.phase == "script.future_world" for event in events)

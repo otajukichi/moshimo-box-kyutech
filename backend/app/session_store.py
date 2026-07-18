@@ -34,20 +34,19 @@ INTERVIEW_OPENING = (
 
 RECOVERY_QUESTIONS: dict[InterviewTheme, str] = {
     InterviewTheme.FUTURE_QUESTION: (
-        "今の話をもう少し聞かせてください。"
-        "その答えを未来の自分から聞けたら、どんな気持ちになれそう？"
+        "未来の自分に聞きたいことを、一つだけ教えてもらえる？"
     ),
     InterviewTheme.PRESENT_CONNECTION: (
-        "その未来につながりそうなことで、今つい時間を使ってしまうものはある？"
+        "最近よくやっていることは何？"
     ),
     InterviewTheme.CONCRETE_EPISODE: (
-        "今の話に関係することで、最近いちばん印象に残った出来事は何だった？"
+        "そのことで、最近いちばん印象に残った場面はどんなものだった？"
     ),
     InterviewTheme.FUTURE_EXPANSION: (
-        "今の話が未来で大きく発展したら、どんな場面になっていたら面白そう？"
+        "その話が未来で大きく発展するとしたら、どんな場面を見てみたい？"
     ),
     InterviewTheme.FUTURE_MESSAGE: (
-        "その未来を経験した自分から、今の自分へ最初に何と言ってほしい？"
+        "未来の自分から、どんな調子で話しかけられたらうれしい？"
     ),
 }
 

@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 import resource
+import signal
 import subprocess
 import sys
 import time
@@ -177,8 +178,10 @@ class EchoMimicV3VideoAdapter(WorkerAdapter):
                 *command,
                 cwd=source_path,
                 env=environment,
+                stdin=asyncio.subprocess.DEVNULL,
                 stdout=log_handle,
                 stderr=asyncio.subprocess.STDOUT,
+                start_new_session=True,
             )
             self._process = process
             wait_task = asyncio.create_task(process.wait())
@@ -211,6 +214,11 @@ class EchoMimicV3VideoAdapter(WorkerAdapter):
                             )
                         )
                 return_code = await wait_task
+            except BaseException:
+                # The inference script may launch ffmpeg or CUDA children. They
+                # must not survive a timeout and retain session files or VRAM.
+                await self._terminate_process()
+                raise
             finally:
                 if not wait_task.done():
                     wait_task.cancel()
@@ -289,9 +297,12 @@ class EchoMimicV3VideoAdapter(WorkerAdapter):
         if not isinstance(sample_size, list) or len(sample_size) != 2:
             raise ValueError("echomimic_sample_size_must_have_two_values")
         prompt = (
-            f"{script.video_prompt} The same fictional future scene is maintained. "
-            "The person speaks directly to the camera with natural lip motion, subtle "
-            "blinking, small head movement, and restrained hand gestures."
+            f"{script.video_prompt} The same fictional future scene and identity are "
+            "maintained. The person speaks directly to the camera with synchronized "
+            "lip motion, expressive eyes, natural blinking, small head turns, visible "
+            "shoulder and upper-body movement, and one restrained hand gesture when "
+            "the hands are in frame. The result must feel like a recorded video, not "
+            "a still image with only the mouth moving."
         )
         runner_path = Path(__file__).resolve().parents[4] / (
             "workers/runners/echomimic_v3_flash.py"
@@ -429,11 +440,17 @@ class EchoMimicV3VideoAdapter(WorkerAdapter):
         process = self._process
         if process is None or process.returncode is not None:
             return
-        process.terminate()
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
         try:
             await asyncio.wait_for(process.wait(), timeout=5)
         except asyncio.TimeoutError:
-            process.kill()
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
             await process.wait()
         self._process = None
 
